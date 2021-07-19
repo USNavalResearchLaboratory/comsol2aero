@@ -38,8 +38,8 @@ cmake --build . -j4 --config Release
 ```
 
 ## Documentation
-The comsol2aero documentation can be displayed by executing:
+The comsol2aero documentation and examples command line arguments can be displayed by executing:
 ```
 comsol2aero --help
 ```
-Example meshes are located in the ```examples``` folder.
+The example meshes are located in the ```examples``` folder.

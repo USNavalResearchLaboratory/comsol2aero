@@ -37,6 +37,12 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
+// Notice of Third-Party Software Licenses
+//
+// This software uses open source software packages from third parties. These are available on
+// an "as is" basis and subject to their individual license agreements. Additional information can
+// can be found in the provided "licenses" folder.
+//
 
 #include "aerofgenerator.hpp"
 #include "aerosgenerator.hpp"
