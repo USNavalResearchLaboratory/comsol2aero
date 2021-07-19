@@ -1,5 +1,8 @@
 # comsol2aero
-comsol2areo is a mesh converter tool that takes as inputs comsol mphtxt files and exports them to [aero-s](https://bitbucket.org/frg/aero-f) and [aero-f](https://bitbucket.org/frg/aero-f) mesh files . 
+comsol2areo is a mesh converter tool that takes as inputs comsol mphtxt files and exports them to [aero-s](https://bitbucket.org/frg/aero-f) and [aero-f](https://bitbucket.org/frg/aero-f) mesh files. 
+
+The latest executables for linux and windows can be found [here](releases/latest).
+
 ## Compilation
 The source code depends on the boost spirit library, boost program_options and is tested to work using at least v. 1.61 of boost. ([www.boost.org](www.boost.org)). To compile you will need:
 1. A modern c++ compiler (Tested using GCC on Linux and MSVC on Windows)
