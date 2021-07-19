@@ -22,7 +22,7 @@ mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
 # 4. Build:
-cmake --build . -j4 --config Release
+cmake --build . --config Release
 ```
 The default compilation process builds a static executable that is compatible with a very large number of linux flavors and has been tested to work with distributions dating back 10 years.
 
@@ -37,7 +37,7 @@ mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DBOOST_ROOT=C:/local/boost_1_76_0 # Your boost directory may be at a different location
 # 4. Build:
-cmake --build . -j4 --config Release
+cmake --build . --config Release
 ```
 
 ## Documentation
