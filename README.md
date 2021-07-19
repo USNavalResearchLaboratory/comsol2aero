@@ -13,12 +13,12 @@ A suggested compilation sequence is:
 sudo apt install build-essential libboost-all-dev cmake
 # 2. Clone the repository
 git clone git@github.com:USNavalResearchLaboratory/comsol2aero.git
-# 2. Change to the repository directory and configure:
+# 3. Change to the repository directory and configure:
 cd comsol2aero
 mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
-# 3. Build:
+# 4. Build:
 cmake --build . -j4 --config Release
 ```
 The default compilation process builds a static executable that is compatible with a very large number of linux flavors and has been tested to work with distributions dating back 10 years.
@@ -28,12 +28,12 @@ The default compilation process builds a static executable that is compatible wi
 # 1. Install MS Visual Studio or mingw and cmake.
 # 2. Clone the repository
 git clone git@github.com:USNavalResearchLaboratory/comsol2aero.git
-# 2. Change to the repository directory and configure:
+# 3. Change to the repository directory and configure:
 cd comsol2aero
 mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -DBOOST_ROOT=C:/local/boost_1_76_0 # Your boost directory may be at a different location
-# 3. Build:
+# 4. Build:
 cmake --build . -j4 --config Release
 ```
 
