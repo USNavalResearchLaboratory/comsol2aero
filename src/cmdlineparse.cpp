@@ -1,5 +1,3 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
-
 #include "cmdlineparse.hpp"
 #include "charstreamer.hpp"
 #include "config.hpp"
@@ -347,13 +345,7 @@ user_options parseCommandLineOptions( int ac, char* av[] )
     cout << "authored by federal employees. To the extent that a federal employee is an author of a portion of\n";
     cout << "this software or a derivative work thereof, no copyright is claimed by the United States\n";
     cout << "Government, as represented by the Secretary of the Navy (\"GOVERNMENT\") under Title 17, U.S. Code.\n";
-    cout << "All Other Rights Reserved. To the extent that a non-federal employee is an author of a portion of\n";
-    cout << "this software or a derivative work thereof, the work was funded in whole or in part by the U.S.\n";
-    cout << "Government, and is, therefore, subject to the following license: The Government is granted for\n";
-    cout << "itself and others acting on its behalf a paid-up, nonexclusive, irrevocable worldwide license in\n";
-    cout << "this work to reproduce, prepare derivative works, distribute copies to the public, and perform\n";
-    cout << "publicly and display publicly, by or on behalf of the Government. All other rights are reserved\n";
-    cout << "by the copyright owner.\n";
+    cout << "All Other Rights Reserved.\n";
     cout << '\n';
     cout << "Redistribution and use in source and binary forms, with or without modification, are permitted\n";
     cout << "provided that the following conditions are met:\n";
@@ -377,11 +369,6 @@ user_options parseCommandLineOptions( int ac, char* av[] )
     cout << "NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR THE U.S. GOVERNMENT BE LIABLE FOR ANY CLAIM,\n";
     cout << "DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n";
     cout << "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n";
-    cout << '\n';
-    cout << "Notice of Third-Party Software Licenses\n";
-    cout << '\n';
-    cout << "This software contains open source software packages from third parties. These are available on\n";
-    cout << "an \"as is\" basis and subject to their individual license agreements.\n";
 
     return options;
   }

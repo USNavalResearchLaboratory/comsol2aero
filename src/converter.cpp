@@ -1,5 +1,3 @@
-// comsol2aero: a simple comsol mesh to frg aero mesh converter
-
 #include "converter.hpp"
 #include "comsolmesh.hpp"
 #include "utils.hpp"
