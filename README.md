@@ -43,3 +43,6 @@ The comsol2aero documentation and examples command line arguments can be display
 comsol2aero --help
 ```
 The example meshes are located in the ```examples``` folder.
+
+## License
+The license of the software can be find in: [License](license.txt). Third party licenses are in the [Linceses](licenses) folder.
