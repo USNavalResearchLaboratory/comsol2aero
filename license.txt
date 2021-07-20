@@ -6,7 +6,7 @@ AUTHORIZATION TO USE AND DISTRIBUTE
 
 By using or distributing the comsol2aero software ("THE SOFTWARE"), you agree to the following terms
 governing the use and redistribution of THE SOFTWARE originally developed at the U.S. Naval
-Research Laboratory (NRL), Computational Multiphysics SystemS Lab., Code 6394.
+Research Laboratory (NRL), Computational Multiphysics Systems Lab., Code 6394.
 
 The modules of comsol2aero containing an attribution in their header files to the NRL have been
 authored by federal employees. To the extent that a federal employee is an author of a portion of
