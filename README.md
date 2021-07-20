@@ -47,7 +47,7 @@ comsol2aero --help
 ```
 The example meshes are located in the ```examples``` folder.
 
-# License
+# License intent
 comsol2aero is the work of the U.S. Government and the relevant source code is in the public domain. Please read the [license](license.txt) to ensure you can satisfy the authorization to use and distribute requirements.
 
 Third party libraries used by cxxplot have their own respective licenses. More information can be found in the [licenses](licenses) folder.
