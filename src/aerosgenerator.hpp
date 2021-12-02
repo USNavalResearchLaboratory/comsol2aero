@@ -34,9 +34,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from third
-// parties. These are available on an "as is" basis and subject to their individual license agreements.
-// Additional information can be found in the provided "licenses" folder.
+// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from
+// third parties. These are available on an "as is" basis and subject to their individual license
+// agreements. Additional information can be found in the provided "licenses" folder.
 
 #ifndef AEROSGENERATOR_H
 #define AEROSGENERATOR_H
@@ -103,7 +103,7 @@ struct generator_grammar : grammar< OutputIterator, mesh_t( ) >
            << lit( VERSION ) << eol << '*' << eol << nodes << eol << '*' << eol << elements << eol
            << '*' << eol << attributes_labels << eol << '*' << eol << attributes << eol << '*'
            << eol << ( ( eps( generate_matusage == true ) << matusage << eol << '*' << eol ) | eps )
-           << topologies << eol;
+           << topologies << eol << '*' << eol << selection_topologies << eol;
 
     nodes %= "NODES" << eol << eps[ _a = 1 ]
                      << ( lit( _a ) << eps[ ++_a ] << ' ' << ( real_ % ' ' ) ) % eol;
@@ -133,6 +133,15 @@ struct generator_grammar : grammar< OutputIterator, mesh_t( ) >
                   | eps;
 
     topology_id = omit[ boost::spirit::karma::string ] << uint_;
+
+    selection_topologies %= eps[ _a = 1 ] << ( "SURFACETOPO " << lit( _a ) << eps[ ++_a ] << ' '
+                                                              << selection_topology << eol )
+                                               % eol
+                                          << '*'
+                            | eps;
+
+    selection_topology %= "* Selection name: " << boost::spirit::karma::string << eol << eps[ _a = 1 ]
+                              << ( lit( _a ) << eps[ ++_a ] << ' ' << element ) % eol;
   }
 
   rule< OutputIterator, mesh_t( ) >                                       mesh;
@@ -144,6 +153,11 @@ struct generator_grammar : grammar< OutputIterator, mesh_t( ) >
   rule< OutputIterator, locals< size_t >, mesh_t::attributes_t( ) >       matusage;
   rule< OutputIterator, locals< size_t >, mesh_t::surface_topologies( ) > topologies;
   rule< OutputIterator, mesh_t::topology_id_t( ) >                        topology_id;
+
+  rule< OutputIterator, locals< size_t >, mesh_t::selection_surface_topologies( ) >
+    selection_topologies;
+  rule< OutputIterator, locals< size_t >, mesh_t::selection_surface_topology( ) >
+    selection_topology;
 
   real_type const real_;
 };

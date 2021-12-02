@@ -39,21 +39,26 @@ shared_ptr< comsol_to_aero_element_mapper_base > mapper(
   }
 }
 
+bool is_surface_selection( const comsol::selection_object_t so )
+{
+  return so.dimsize == 2;
+}
+
 converter::converter( bool                         verb,
                       bool                         associate_selections_with_attributes,
                       const map< string, size_t >& mappingOptions,
                       const std::vector< string >& pr,
                       const std::vector< string >& accepted_selections ) :
   selections_to_attributes( associate_selections_with_attributes ),
-  stdclog( clog, verb ), debugstdout( cerr, true ), prefixes( pr ),
-  accepted_selections_( accepted_selections )
+  prefixes( pr ), accepted_selections_( accepted_selections ), stdclog( clog, verb ),
+  debugstdout( cerr, true )
 {
 
   typedef shared_ptr< comsol_to_aero_element_mapper_base > ptr_t;
 
   // FIXME: These map tri, quad elements to surfacetopo. Will maybe need functionality to map to
   // domain elements.
-
+  // FIXME: Test the output of selection for tri and quad
   boundaryMappers[ "tri" ]  = mapper< tri_mapper >( "tri", mappingOptions );
   boundaryMappers[ "quad" ] = ptr_t( new quad_mapper( 1 ) );
 
@@ -75,7 +80,7 @@ void converter::map_comsol_selections_to_aero_attributes(
   auto                selectionId = geometrySet;
   std::vector< bool > alreadySet( selectionId.size( ), false );
 
-  for ( auto i = 0; i != selectionObjects.size( ); i++ )
+  for ( std::size_t i = 0; i != selectionObjects.size( ); i++ )
   {
     const auto& selectionObject = selectionObjects[ i ];
 
@@ -96,11 +101,13 @@ void converter::map_comsol_selections_to_aero_attributes(
       }
     }
 
-    stdclog.print( "Selection object: ", selectionObject.label );
+    stdclog.print( "Attribute conversion." );
+    stdclog.print( "  Selection object: ", selectionObject.label );
+    stdclog.print( "    Number of entites: ", selectionObject.entities.size( ) );
 
     for ( const auto entity : selectionObject.entities )
     {
-      for ( auto j = 0; j != selectionId.size( ); j++ )
+      for ( std::size_t j = 0; j != selectionId.size( ); j++ )
       {
         if ( geometrySet[ j ] == entity )
         {
@@ -193,6 +200,8 @@ void converter::convert( const comsol::mesh_t& cMesh, aero::mesh_t& aMesh ) cons
         map_comsol_selections_to_aero_attributes(
           selectionObjects, aMesh, attribute_overwrites, geometrySet, not_assigned );
       }
+
+      // map_comsol_surface_selections_to_aero_surfacetopo( selectionObjects, aMesh, elementSet );
     }
     else
     {
@@ -229,6 +238,8 @@ void converter::convert( const comsol::mesh_t& cMesh, aero::mesh_t& aMesh ) cons
           auto& geom = surfaceTopologies[ id ];
           geom.push_back( aero::mesh_t::element_t( mapper->getToID( ), connectivity ) );
         }
+
+        // map_comsol_surface_selections_to_aero_surfacetopo( selectionObjects, aMesh, elementSet );
       }
       else
       {
@@ -248,6 +259,45 @@ void converter::convert( const comsol::mesh_t& cMesh, aero::mesh_t& aMesh ) cons
     {
       for ( const auto& label : accepted_selections_ )
         aMesh.attribute_labels.push_back( label );
+    }
+  }
+
+  // Convert surface selections
+  if ( selectionObjects.size( ) != 0 )
+  {
+    stdclog.print( "Surface selections conversion." );
+  }
+
+  for ( std::size_t i = 0; i != selectionObjects.size( ); i++ )
+  {
+    const auto& selectionObject = selectionObjects[ i ];
+
+    if ( is_surface_selection( selectionObject ) )
+    {
+      stdclog.print( "  Surface Selection: ", selectionObject.label );
+      stdclog.print( "    Entities: ", selectionObject.entities.size( ) );
+
+      aMesh.selectionSurfaceTopologies.push_back( aero::mesh_t::selection_surface_topology( ) );
+
+      auto& selectionSurfaceTopology = *( aMesh.selectionSurfaceTopologies.rbegin( ) );
+
+      selectionSurfaceTopology.first = selectionObject.label;
+      auto& selectionSurfaceElements = selectionSurfaceTopology.second;
+
+      for ( const auto entityID : selectionObject.entities )
+      {
+        for ( const auto& entity : surfaceTopologies )
+        {
+          if ( entity.first.second - 1 == entityID )
+          {
+            const auto& elems = entity.second;
+            for ( const auto& e : elems )
+            {
+              selectionSurfaceElements.push_back( e );
+            }
+          }
+        }
+      }
     }
   }
 

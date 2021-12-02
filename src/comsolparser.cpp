@@ -101,12 +101,12 @@ void parser::printModel( )
       }
     }
 
-    stdclog.print( "Selection Object: " );
     for ( const auto& so : model.selection_objects )
     {
       stdclog.print( "Selection Object: " );
       stdclog.print( "  ID: ", so.classId );
       stdclog.print( "  Label: ", so.label );
+      stdclog.print( "  Dim : ", so.dimsize );
       stdclog.print( "  Number of domains: ", so.entities.size( ) );
     }
   }

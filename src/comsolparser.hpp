@@ -78,12 +78,14 @@ using namespace qi;
 
 using std::string;
 
+inline const auto comment = ( "#" >> lexeme[ +( char_ - eol ) ] );
+
 template< typename Iterator >
 struct mesh_skipper : public grammar< Iterator >
 {
   mesh_skipper( ) : mesh_skipper::base_type( skip )
   {
-    skip = +( space | ( "#" >> lexeme[ +( char_ - eol ) ] ) );
+    skip = +( space | comment );
   }
 
   rule< Iterator > skip;
@@ -178,7 +180,7 @@ struct selection_object_grammar :
     selection_object_grammar::base_type( object, "Comsol selection object" )
   {
 
-    label %= omit[ uint_ ] > lexeme[ +( char_ - eol - ( "#" >> lexeme[ +( char_ - eol ) ] ) ) ];
+    label %= omit[ uint_ ] > lexeme[ +( char_ - eol - comment ) ];
     label.name( "Object label followed by # Label" );
     //  baseIndex.name( "lowest selection point index equal to 0" );
 
@@ -188,11 +190,12 @@ struct selection_object_grammar :
     object %= omit[ uint_ > uint_
                     > uint_ ] // Not sure about what those three numbers are in the comsol mesh file
               > lexeme[ uint_ > +space
-                        > lit( "Selection" ) ] // Fixme: Currently we support only mesh objects
-              > uint_                          // Version (Comsol version?)
+                        > lit( "Selection" ) ]
+              > uint_
               > label
-              > omit[ uint_ > lexeme[ +( char_ - eol - ( "#" >> lexeme[ +( char_ - eol ) ] ) ) ] ]
-              > omit[ lexeme[ +( char_ - eol ) ] ] > omit[ uint_[ ref( numEntities ) = _1 ] ]
+              > omit[ uint_ > lexeme[ +( char_ - eol - comment ) ] ]
+              > uint_ // # Dimension
+              > omit[ uint_[ ref( numEntities ) = _1 ] ] // # Number of entities
               > entities;
   }
 
@@ -219,12 +222,12 @@ struct mesh_grammar : grammar< Iterator, mesh_t( ), skipper >
 
     tags %= omit[ uint_[ _a = _1 ] ]
             > repeat( _a )[ lexeme[ uint_ > +space ]
-                            > lexeme[ +( char_ - eol - ( "#" >> lexeme[ +( char_ - eol ) ] ) ) ] ];
+                            > lexeme[ +( char_ - eol - comment ) ] ];
     tags.name( "Tags definition" );
 
     types %= omit[ uint_[ _a = _1 ] ]
              > repeat( _a )[ lexeme[ uint_ > +space ]
-                             > lexeme[ +( char_ - eol - ( "#" >> lexeme[ +( char_ - eol ) ] ) ) ] ];
+                             > lexeme[ +( char_ - eol - comment ) ] ]; // TODO: I think all theses should be +( char_ - eol) - comment
     types.name( "Object types definition" );
 
     comsolMeshObject %= objParser;

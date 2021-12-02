@@ -34,9 +34,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from third
-// parties. These are available on an "as is" basis and subject to their individual license agreements.
-// Additional information can be found in the provided "licenses" folder.
+// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from
+// third parties. These are available on an "as is" basis and subject to their individual license
+// agreements. Additional information can be found in the provided "licenses" folder.
 
 #ifndef CONVERTER_H
 #define CONVERTER_H
@@ -191,6 +191,11 @@ private:
     std::size_t&                                   attribute_overwrites,
     const comsol::element_set::geometric_indicies& geometrySet,
     std::size_t&                                   not_assigned ) const;
+
+  void map_comsol_surface_selections_to_aero_surfacetopo(
+    const comsol::mesh_t::selection_objects_t& selectionObjects,
+    aero::mesh_t&                              aMesh,
+    const comsol::element_set&                 geometrySet ) const;
 };
 
 #endif // CONVERTER_H

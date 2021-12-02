@@ -119,13 +119,14 @@ struct selection_object_t
   size_t     classId;
   size_t     version;
   string     label;
+  size_t     dimsize;
   entities_t entities;
 };
 
 } // namespace comsol
 
 BOOST_FUSION_ADAPT_STRUCT( comsol::selection_object_t,
-                           ( size_t, classId )( size_t, version )( std::string, label )(
+                           ( size_t, classId )( size_t, version )( std::string, label )( size_t, dimsize )(
                              comsol::selection_object_t::entities_t, entities ) )
 
 namespace comsol
