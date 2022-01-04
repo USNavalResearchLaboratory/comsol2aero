@@ -185,7 +185,7 @@ private:
   char_streamer< std::ostream > debugstdout;
 #endif
 
-  void map_comsol_selections_to_aero_attributes(
+  void map_3d_comsol_selections_to_aero_attributes(
     const comsol::mesh_t::selection_objects_t&     selectionObjects,
     aero::mesh_t&                                  aMesh,
     std::size_t&                                   attribute_overwrites,

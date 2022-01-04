@@ -41,6 +41,6 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
-#define VERSION "1.2.0"
+#define VERSION "1.2.1"
 
 #endif // CONFIG_HPP

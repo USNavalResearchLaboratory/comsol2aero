@@ -70,7 +70,7 @@ converter::converter( bool                         verb,
   domainMappers[ "hex" ]   = mapper< hex_mapper >( "hex", mappingOptions );
 }
 
-void converter::map_comsol_selections_to_aero_attributes(
+void converter::map_3d_comsol_selections_to_aero_attributes(
   const comsol::mesh_t::selection_objects_t&     selectionObjects,
   aero::mesh_t&                                  aMesh,
   std::size_t&                                   attribute_overwrites,
@@ -83,6 +83,11 @@ void converter::map_comsol_selections_to_aero_attributes(
   for ( std::size_t i = 0; i != selectionObjects.size( ); i++ )
   {
     const auto& selectionObject = selectionObjects[ i ];
+
+    if ( selectionObject.dimsize == 2 ) // Do not assign selections of dimension 2
+    {
+      continue;
+    }
 
     std::size_t id = i;
 
@@ -197,7 +202,7 @@ void converter::convert( const comsol::mesh_t& cMesh, aero::mesh_t& aMesh ) cons
       }
       else
       {
-        map_comsol_selections_to_aero_attributes(
+        map_3d_comsol_selections_to_aero_attributes(
           selectionObjects, aMesh, attribute_overwrites, geometrySet, not_assigned );
       }
 
