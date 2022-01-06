@@ -74,7 +74,7 @@ void converter::map_3d_comsol_selections_to_aero_attributes(
   const comsol::mesh_t::selection_objects_t&     selectionObjects,
   aero::mesh_t&                                  aMesh,
   std::size_t&                                   attribute_overwrites,
-  const comsol::element_set::geometric_indicies& geometrySet,
+  const comsol::element_set_t::geometric_indicies_t& geometrySet,
   std::size_t&                                   not_assigned ) const
 {
   auto                selectionId = geometrySet;
@@ -143,7 +143,7 @@ void converter::convert( const comsol::mesh_t& cMesh, aero::mesh_t& aMesh ) cons
 
   copy( coords.begin( ), coords.end( ), back_inserter( aMesh.nodes ) );
 
-  auto& surfaceTopologies = aMesh.surfaceTopologies;
+  auto& surfaceTopologies = aMesh.surface_topologies;
 
   std::size_t attribute_overwrites = 0;
   std::size_t not_assigned         = 0;
@@ -151,14 +151,14 @@ void converter::convert( const comsol::mesh_t& cMesh, aero::mesh_t& aMesh ) cons
   const auto& selectionObjects = cMesh.selection_objects;
 
   stdclog.print( "Converting topology" );
-  for ( size_t i = 0; i != cMesh.object.elementSets.size( ); i++ )
+  for ( size_t i = 0; i != cMesh.object.element_sets.size( ); i++ )
   {
 
-    const auto& elementSet    = cMesh.object.elementSets[ i ];
-    const auto& elementType   = elementSet.elementType;
+    const auto& elementSet    = cMesh.object.element_sets[ i ];
+    const auto& elementType   = elementSet.element_type;
     const auto& elementNameId = elementType.second;
     const auto& elements      = elementSet.elements;
-    const auto& geometrySet   = elementSet.geometricIndicies;
+    const auto& geometrySet   = elementSet.geometric_indicies;
 
     if ( elements.size( ) != geometrySet.size( ) )
     {
@@ -282,9 +282,9 @@ void converter::convert( const comsol::mesh_t& cMesh, aero::mesh_t& aMesh ) cons
       stdclog.print( "  Surface Selection: ", selectionObject.label );
       stdclog.print( "    Entities: ", selectionObject.entities.size( ) );
 
-      aMesh.selectionSurfaceTopologies.push_back( aero::mesh_t::selection_surface_topology( ) );
+      aMesh.selection_surface_topologies.push_back( aero::mesh_t::selection_surface_topology_t( ) );
 
-      auto& selectionSurfaceTopology = *( aMesh.selectionSurfaceTopologies.rbegin( ) );
+      auto& selectionSurfaceTopology = *( aMesh.selection_surface_topologies.rbegin( ) );
 
       selectionSurfaceTopology.first = selectionObject.label;
       auto& selectionSurfaceElements = selectionSurfaceTopology.second;

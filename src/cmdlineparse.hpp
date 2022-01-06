@@ -45,7 +45,7 @@
 #include <string>
 #include <vector>
 
-struct user_options
+struct user_options_t
 {
   bool                                 verbose         = false;
   bool                                 force           = false;
@@ -61,6 +61,6 @@ struct user_options
   std::vector< std::string >           accepted_selections;
 };
 
-user_options parseCommandLineOptions( int ac, char* av[] );
+user_options_t parseCommandLineOptions( int ac, char* av[] );
 
 #endif // PARSECOMMANDLINE_HPP

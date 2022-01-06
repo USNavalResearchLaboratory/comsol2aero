@@ -94,7 +94,7 @@ public:
 
   virtual const TOID& getToID( ) const = 0;
 
-  aero::mesh_t::connectivity_t map( const comsol::element_set::element_t& element ) const
+  aero::mesh_t::connectivity_t map( const comsol::element_set_t::element_t& element ) const
   {
     aero::mesh_t::connectivity_t con;
     con.reserve( element.size( ) );
@@ -189,13 +189,13 @@ private:
     const comsol::mesh_t::selection_objects_t&     selectionObjects,
     aero::mesh_t&                                  aMesh,
     std::size_t&                                   attribute_overwrites,
-    const comsol::element_set::geometric_indicies& geometrySet,
+    const comsol::element_set_t::geometric_indicies_t& geometrySet,
     std::size_t&                                   not_assigned ) const;
 
   void map_comsol_surface_selections_to_aero_surfacetopo(
     const comsol::mesh_t::selection_objects_t& selectionObjects,
     aero::mesh_t&                              aMesh,
-    const comsol::element_set&                 geometrySet ) const;
+    const comsol::element_set_t&                 geometrySet ) const;
 };
 
 #endif // CONVERTER_H

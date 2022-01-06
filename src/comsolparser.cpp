@@ -80,24 +80,24 @@ void parser::printModel( )
     stdclog.print( "  Space dimensions: ", model.object.spaceDimensions );
     stdclog.print( "  Number of mesh points: ", model.object.coordinates.size( ) );
 
-    stdclog.print( "  Element types\n    Count: ", model.object.elementSets.size( ) );
+    stdclog.print( "  Element types\n    Count: ", model.object.element_sets.size( ) );
 
-    for ( size_t i = 0; i != model.object.elementSets.size( ); i++ )
+    for ( size_t i = 0; i != model.object.element_sets.size( ); i++ )
     {
       stdclog.print( "    Type ",
                      i,
                      ": ",
-                     model.object.elementSets[ i ].elementType.first,
+                     model.object.element_sets[ i ].element_type.first,
                      ' ',
-                     model.object.elementSets[ i ].elementType.second );
-      if ( model.object.elementSets[ i ].elements.size( ) > 0 )
+                     model.object.element_sets[ i ].element_type.second );
+      if ( model.object.element_sets[ i ].elements.size( ) > 0 )
       {
         stdclog.print( "      Nodes per element: ",
-                       model.object.elementSets[ i ].elements[ 0 ].size( ) );
+                       model.object.element_sets[ i ].elements[ 0 ].size( ) );
         stdclog.print( "      Number of elements: ",
-                       model.object.elementSets[ i ].elements.size( ) );
+                       model.object.element_sets[ i ].elements.size( ) );
         stdclog.print( "      Number of geometric indicies: ",
-                       model.object.elementSets[ i ].geometricIndicies.size( ) );
+                       model.object.element_sets[ i ].geometric_indicies.size( ) );
       }
     }
 

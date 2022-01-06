@@ -151,12 +151,12 @@ struct generator_grammar : grammar< OutputIterator, mesh_t( ) >
   rule< OutputIterator, locals< size_t >, mesh_t::attribute_labels_t( ) > attributes_labels;
   rule< OutputIterator, locals< size_t >, mesh_t::attributes_t( ) >       attributes;
   rule< OutputIterator, locals< size_t >, mesh_t::attributes_t( ) >       matusage;
-  rule< OutputIterator, locals< size_t >, mesh_t::surface_topologies( ) > topologies;
+  rule< OutputIterator, locals< size_t >, mesh_t::surface_topologies_t( ) > topologies;
   rule< OutputIterator, mesh_t::topology_id_t( ) >                        topology_id;
 
-  rule< OutputIterator, locals< size_t >, mesh_t::selection_surface_topologies( ) >
+  rule< OutputIterator, locals< size_t >, mesh_t::selection_surface_topologies_t( ) >
     selection_topologies;
-  rule< OutputIterator, locals< size_t >, mesh_t::selection_surface_topology( ) >
+  rule< OutputIterator, locals< size_t >, mesh_t::selection_surface_topology_t( ) >
     selection_topology;
 
   real_type const real_;

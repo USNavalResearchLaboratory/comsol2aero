@@ -179,10 +179,10 @@ struct hex_t : public mapping_option< hex_t >
 
 template void validate< hex_t >( boost::any& v, const std::vector< std::string >&, hex_t*, int );
 
-user_options parseCommandLineOptions( int ac, char* av[] )
+user_options_t parseCommandLineOptions( int ac, char* av[] )
 {
 
-  user_options options;
+  user_options_t options;
 
   po::options_description desc(
     "Usage: comsol2aero [OPTION]... FILE\n"

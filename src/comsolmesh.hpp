@@ -34,9 +34,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from third
-// parties. These are available on an "as is" basis and subject to their individual license agreements.
-// Additional information can be found in the provided "licenses" folder.
+// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from
+// third parties. These are available on an "as is" basis and subject to their individual license
+// agreements. Additional information can be found in the provided "licenses" folder.
 
 #ifndef COMSOLMODEL_HPP
 #define COMSOLMODEL_HPP
@@ -57,35 +57,36 @@ using namespace std;
 // semantics. For example element_type is the actual element type (e.g. tri,
 // tet etc., while element_t is the C++ type that represents an element.
 
-struct element_set
+struct element_set_t
 {
-  using element_type       = pair< size_t, string >;
-  using element_t          = vector< size_t >;
-  using elements_t         = vector< element_t >;
-  using geometric_indicies = vector< size_t >;
+  using element_type_t       = pair< size_t, string >;
+  using element_t            = vector< size_t >;
+  using elements_t           = vector< element_t >;
+  using geometric_indicies_t = vector< size_t >;
 
-  element_type       elementType;
-  elements_t         elements;
-  geometric_indicies geometricIndicies;
+  element_type_t       element_type;
+  elements_t           elements;
+  geometric_indicies_t geometric_indicies;
 };
 
 } // namespace comsol
 
-BOOST_FUSION_ADAPT_STRUCT( comsol::element_set,
-                           ( comsol::element_set::element_type,
-                             elementType )( comsol::element_set::elements_t,
-                                            elements )( comsol::element_set::geometric_indicies,
-                                                        geometricIndicies ) )
+// clang-format off
+BOOST_FUSION_ADAPT_STRUCT( comsol::element_set_t,
+  ( comsol::element_set_t::element_type_t,       element_type )
+  ( comsol::element_set_t::elements_t,           elements )
+  ( comsol::element_set_t::geometric_indicies_t, geometric_indicies ) )
+// clang-format on
 
 namespace comsol
 {
 
-struct mesh_object
+struct mesh_object_t
 {
-  using element_sets = vector< element_set >;
-  using point_t      = vector< double >; // FIXME: We could possibly restrict
-                                         // this to 2 or 3 dim arrays, but
-                                         // performance gains may be minimal.
+  using element_sets_t = vector< element_set_t >;
+  using point_t        = vector< double >; // FIXME: We could possibly restrict
+                                           // this to 2 or 3 dim arrays, but
+                                           // performance gains may be minimal.
   using coords_t = vector< point_t >;
 
   size_t classId;
@@ -97,17 +98,23 @@ struct mesh_object
 
   coords_t coordinates;
 
-  element_sets elementSets; // FIXME: Are elementSets part of mesh objects or
-                            // they are separate entities?
+  element_sets_t element_sets; // FIXME: Are elementSets part of mesh objects or
+                               // they are separate entities?
 };
 
 } // namespace comsol
 
-BOOST_FUSION_ADAPT_STRUCT(
-  comsol::mesh_object,
-  ( size_t, classId )( size_t, version )( size_t, spaceDimensions )( size_t, numMeshPoints )(
-    size_t, index0 )( comsol::mesh_object::coords_t,
-                      coordinates )( comsol::mesh_object::element_sets, elementSets ) )
+// clang-format off
+BOOST_FUSION_ADAPT_STRUCT( comsol::mesh_object_t,
+  ( size_t,                                classId )
+  ( size_t,                                version )
+  ( size_t,                                spaceDimensions )
+  ( size_t,                                numMeshPoints )
+  ( size_t,                                index0 )
+  ( comsol::mesh_object_t::coords_t,       coordinates )
+  ( comsol::mesh_object_t::element_sets_t, element_sets )
+)
+// clang-format on
 
 namespace comsol
 {
@@ -125,9 +132,15 @@ struct selection_object_t
 
 } // namespace comsol
 
+// clang-format off
 BOOST_FUSION_ADAPT_STRUCT( comsol::selection_object_t,
-                           ( size_t, classId )( size_t, version )( std::string, label )( size_t, dimsize )(
-                             comsol::selection_object_t::entities_t, entities ) )
+  ( size_t,                                 classId )
+  ( size_t,                                 version )
+  ( std::string,                            label )
+  ( size_t,                                 dimsize )
+  ( comsol::selection_object_t::entities_t, entities )
+)
+// clang-format on
 
 namespace comsol
 {
@@ -148,16 +161,20 @@ struct mesh_t
   version_t           version;
   tags_t              tags;
   types_t             types;
-  mesh_object         object;
+  mesh_object_t         object;
   selection_objects_t selection_objects;
 };
 
 } // namespace comsol
 
+// clang-format off
 BOOST_FUSION_ADAPT_STRUCT( comsol::mesh_t,
-                           ( std::string, created )( comsol::mesh_t::version_t, version )(
-                             comsol::mesh_t::tags_t, tags )( comsol::mesh_t::types_t, types )(
-                             comsol::mesh_object, object )( comsol::mesh_t::selection_objects_t,
-                                                            selection_objects ) )
-
+  ( std::string,                         created )
+  ( comsol::mesh_t::version_t,           version )
+  ( comsol::mesh_t::tags_t,              tags )
+  ( comsol::mesh_t::types_t,             types )
+  ( comsol::mesh_object_t,               object )
+  ( comsol::mesh_t::selection_objects_t, selection_objects )
+)
+// clang-format on
 #endif // COMSOLMODEL_HPP

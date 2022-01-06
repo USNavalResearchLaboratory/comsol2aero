@@ -93,7 +93,7 @@ struct mesh_skipper : public grammar< Iterator >
 
 // Connectivity data grammar
 template< typename Iterator, class skipper = mesh_skipper< Iterator > >
-struct element_set_grammar : grammar< Iterator, element_set( ), locals< size_t, size_t >, skipper >
+struct element_set_grammar : grammar< Iterator, element_set_t( ), locals< size_t, size_t >, skipper >
 {
   element_set_grammar( ) : element_set_grammar::base_type( set, "Comsol Element Set" )
   {
@@ -116,18 +116,18 @@ struct element_set_grammar : grammar< Iterator, element_set( ), locals< size_t, 
     set.name( "Comsol element set definition" );
   }
 
-  rule< Iterator, element_set( ), locals< size_t, size_t >, skipper > set;
+  rule< Iterator, element_set_t( ), locals< size_t, size_t >, skipper > set;
 
   rule< Iterator, skipper > geomIndiciesCount;
 
-  rule< Iterator, element_set::element_type( ), skipper > elementType;
+  rule< Iterator, element_set_t::element_type_t( ), skipper > elementType;
 
   size_t elemCount = 0;
 };
 
 // Mesh (nodes + connectivity)
 template< typename Iterator, class skipper = mesh_skipper< Iterator > >
-struct mesh_object_grammar : grammar< Iterator, mesh_object( ), locals< size_t, size_t >, skipper >
+struct mesh_object_grammar : grammar< Iterator, mesh_object_t( ), locals< size_t, size_t >, skipper >
 {
   mesh_object_grammar( ) : mesh_object_grammar::base_type( object, "Comsol mesh object" )
   {
@@ -158,11 +158,11 @@ struct mesh_object_grammar : grammar< Iterator, mesh_object( ), locals< size_t, 
          > elementSets; // Element Sets
   }
 
-  rule< Iterator, mesh_object( ), locals< size_t, size_t >, skipper >       object;
-  rule< Iterator, mesh_object::element_sets( ), locals< size_t >, skipper > elementSets;
+  rule< Iterator, mesh_object_t( ), locals< size_t, size_t >, skipper >       object;
+  rule< Iterator, mesh_object_t::element_sets_t( ), locals< size_t >, skipper > elementSets;
   rule< Iterator, size_t( ), skipper >                                      baseIndex;
-  rule< Iterator, mesh_object::point_t( ), skipper >                        point;
-  rule< Iterator, mesh_object::coords_t( ), skipper >                       coords;
+  rule< Iterator, mesh_object_t::point_t( ), skipper >                        point;
+  rule< Iterator, mesh_object_t::coords_t( ), skipper >                       coords;
 
   element_set_grammar< Iterator > elemParser;
 
@@ -247,7 +247,7 @@ struct mesh_grammar : grammar< Iterator, mesh_t( ), skipper >
   rule< Iterator, mesh_t::version_t( ), skipper >                 version;
   rule< Iterator, mesh_t::tags_t( ), locals< size_t >, skipper >  tags;
   rule< Iterator, mesh_t::types_t( ), locals< size_t >, skipper > types;
-  rule< Iterator, mesh_object( ), skipper >                       comsolMeshObject;
+  rule< Iterator, mesh_object_t( ), skipper >                       comsolMeshObject;
   rule< Iterator, selection_object_t( ), skipper >                comsolSelectionObject;
 
   mesh_object_grammar< Iterator >      objParser;
