@@ -1,4 +1,4 @@
-#include "comsolParser.hpp"
+#include "comsolparser.hpp"
 
 #include <exception>
 #include <fstream>
