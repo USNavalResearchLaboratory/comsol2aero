@@ -1,4 +1,4 @@
-#include "comsolparser.hpp"
+#include "comsolParser.hpp"
 
 #include <exception>
 #include <fstream>
@@ -22,27 +22,27 @@ std::string trim( const std::string& str )
 namespace comsol
 {
 
-parser::parser( bool verb ) : stdclog( clog, verb ), debugstdout( cerr, true )
+Parser::Parser( bool verb ) : stdclog( clog, verb ), debugstdout( cerr, true )
 {
 }
 
-void parser::parse( string& fileName )
+void Parser::parse( string& file_name )
 {
-  stdclog.print( "\nOpening for parsing: ", fileName, "\n---" );
+  stdclog.print( "\nOpening for parsing: ", file_name, "\n---" );
 
-  ifstream in( fileName, ios_base::in );
+  ifstream in( file_name, ios_base::in );
 
   if ( !in )
   {
     stringstream ss;
-    ss << "Could not open file " << fileName << " for parsing.";
+    ss << "Could not open file " << file_name << " for parsing.";
 
     throw runtime_error( ss.str( ) );
   }
   parse( in );
 }
 
-void parser::printModel( )
+void Parser::print_model( )
 {
   using namespace std;
 
@@ -75,9 +75,9 @@ void parser::printModel( )
 
     stdclog.print( "Object: " );
 
-    stdclog.print( "  ID: ", model.object.classId );
+    stdclog.print( "  ID: ", model.object.class_id );
     stdclog.print( "  Version: ", model.object.version );
-    stdclog.print( "  Space dimensions: ", model.object.spaceDimensions );
+    stdclog.print( "  Space dimensions: ", model.object.space_dimensions );
     stdclog.print( "  Number of mesh points: ", model.object.coordinates.size( ) );
 
     stdclog.print( "  Element types\n    Count: ", model.object.element_sets.size( ) );
@@ -101,12 +101,12 @@ void parser::printModel( )
       }
     }
 
-    for ( const auto& so : model.selection_objects )
+    for ( const auto& so : model.selection_object )
     {
       stdclog.print( "Selection Object: " );
-      stdclog.print( "  ID: ", so.classId );
+      stdclog.print( "  ID: ", so.class_id );
       stdclog.print( "  Label: ", so.label );
-      stdclog.print( "  Dim : ", so.dimsize );
+      stdclog.print( "  Dim : ", so.dim_size );
       stdclog.print( "  Number of domains: ", so.entities.size( ) );
     }
   }

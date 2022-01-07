@@ -1,4 +1,4 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
+// comsol2aero: a comsol mesh to frg aero mesh Converter
 
 // AUTHORIZATION TO USE AND DISTRIBUTE. By using or distributing the comsol2aero software
 // ("THE SOFTWARE"), you agree to the following terms governing the use and redistribution of
@@ -34,9 +34,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from third
-// parties. These are available on an "as is" basis and subject to their individual license agreements.
-// Additional information can be found in the provided "licenses" folder.
+// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from
+// third parties. These are available on an "as is" basis and subject to their individual license
+// agreements. Additional information can be found in the provided "licenses" folder.
 
 #ifndef CMDLINEPARSE_HPP
 #define CMDLINEPARSE_HPP
@@ -45,7 +45,7 @@
 #include <string>
 #include <vector>
 
-struct user_options_t
+struct UserOptions
 {
   bool                                 verbose         = false;
   bool                                 force           = false;
@@ -54,13 +54,13 @@ struct user_options_t
   bool                                 aerof           = false;
   bool                                 matusage        = false;
   bool                                 use_selections  = false;
-  std::string                          inputFileName;
-  std::string                          outputFileName;
-  std::map< std::string, std::size_t > elementMapping;
+  std::string                          input_file_name;
+  std::string                          output_file_name;
+  std::map< std::string, std::size_t > element_mapping;
   std::vector< std::string >           surface_name_prefixes;
   std::vector< std::string >           accepted_selections;
 };
 
-user_options_t parseCommandLineOptions( int ac, char* av[] );
+UserOptions parse_command_line_options( int ac, char* av[] );
 
 #endif // PARSECOMMANDLINE_HPP

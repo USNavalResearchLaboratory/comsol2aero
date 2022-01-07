@@ -9,27 +9,27 @@
 using namespace std;
 
 // mappings
-//           Comsol id (minus one)----|--->
+//                      Comsol id (minus one)----|--->
 //                                    |
-typedef comsol_to_aero_element_mapper< 2, 0, 1 >    tri_mapper;
-typedef comsol_to_aero_element_mapper< 2, 0, 1, 3 > quad_mapper;
-typedef comsol_to_aero_element_mapper< 2, 0, 1, 3 > tet_mapper;
-// typedef comsol_to_aero_element_mapper< 2, 1, 0, 3 > tet_50_96_103_mapper; // special mapping for
+using TriMapper  = ComsolToAeroElementMapper< 2, 0, 1 >;
+using QuadMapper = ComsolToAeroElementMapper< 2, 0, 1, 3 >;
+using TetMapper  = ComsolToAeroElementMapper< 2, 0, 1, 3 >;
+// typedef ComsolToAeroElementMapper< 2, 1, 0, 3 > tet_50_96_103_mapper; // special mapping for
 // these types (probably not needed though)
-typedef comsol_to_aero_element_mapper< 4, 4, 4, 4, 2, 0, 1, 3 > pyr_mapper;
-typedef comsol_to_aero_element_mapper< 2, 0, 1, 5, 3, 4 >       prism_mapper;
-typedef comsol_to_aero_element_mapper< 6, 2, 3, 7, 4, 0, 1, 5 > hex_mapper;
+using PyrMapper   = ComsolToAeroElementMapper< 4, 4, 4, 4, 2, 0, 1, 3 >;
+using PrismMapper = ComsolToAeroElementMapper< 2, 0, 1, 5, 3, 4 >;
+using HexMapper   = ComsolToAeroElementMapper< 6, 2, 3, 7, 4, 0, 1, 5 >;
 
 template< class T >
-shared_ptr< comsol_to_aero_element_mapper_base > mapper(
-  const string& id, const map< string, size_t >& mappingOptions )
+shared_ptr< ComsolToAeroElementMapperBase > mapper( const string&                id,
+                                                    const map< string, size_t >& mapping_options )
 {
-  typedef shared_ptr< comsol_to_aero_element_mapper_base > ptr_t;
+  using Ptr = shared_ptr< ComsolToAeroElementMapperBase >;
 
-  auto iter = mappingOptions.find( id );
-  if ( iter != mappingOptions.end( ) )
+  auto iter = mapping_options.find( id );
+  if ( iter != mapping_options.end( ) )
   {
-    return ptr_t( new T( iter->second ) );
+    return Ptr( new T( iter->second ) );
   }
   else
   {
@@ -39,52 +39,52 @@ shared_ptr< comsol_to_aero_element_mapper_base > mapper(
   }
 }
 
-bool is_surface_selection( const comsol::selection_object_t so )
+bool is_surface_selection( const comsol::SelectionObject so )
 {
-  return so.dimsize == 2;
+  return so.dim_size == 2;
 }
 
-converter::converter( bool                         verb,
+Converter::Converter( bool                         verb,
                       bool                         associate_selections_with_attributes,
-                      const map< string, size_t >& mappingOptions,
+                      const map< string, size_t >& mapping_options,
                       const std::vector< string >& pr,
                       const std::vector< string >& accepted_selections ) :
   selections_to_attributes( associate_selections_with_attributes ),
-  prefixes( pr ), accepted_selections_( accepted_selections ), stdclog( clog, verb ),
-  debugstdout( cerr, true )
+  prefixes( pr ), accepted_selections_( accepted_selections ), std_clog( clog, verb ),
+  debug_stdout( cerr, true )
 {
 
-  typedef shared_ptr< comsol_to_aero_element_mapper_base > ptr_t;
+  using Ptr = shared_ptr< ComsolToAeroElementMapperBase >;
 
   // FIXME: These map tri, quad elements to surfacetopo. Will maybe need functionality to map to
   // domain elements.
   // FIXME: Test the output of selection for tri and quad
-  boundaryMappers[ "tri" ]  = mapper< tri_mapper >( "tri", mappingOptions );
-  boundaryMappers[ "quad" ] = ptr_t( new quad_mapper( 1 ) );
+  boundary_mappers[ "tri" ]  = mapper< TriMapper >( "tri", mapping_options );
+  boundary_mappers[ "quad" ] = Ptr( new QuadMapper( 1 ) );
 
-  domainMappers[ "tet" ] = mapper< tet_mapper >( "tet", mappingOptions );
-  // domainMappers[ "tet_50_96_103" ]   = mapper< tet_50_96_103_mapper >   ( "tet_50_96_103",
-  // mappingOptions );
-  domainMappers[ "pyr" ]   = mapper< pyr_mapper >( "pyr", mappingOptions );
-  domainMappers[ "prism" ] = mapper< prism_mapper >( "prism", mappingOptions );
-  domainMappers[ "hex" ]   = mapper< hex_mapper >( "hex", mappingOptions );
+  domain_mappers[ "tet" ] = mapper< TetMapper >( "tet", mapping_options );
+  // domain_mappers[ "tet_50_96_103" ]   = mapper< tet_50_96_103_mapper >   ( "tet_50_96_103",
+  // mapping_options );
+  domain_mappers[ "pyr" ]   = mapper< PyrMapper >( "pyr", mapping_options );
+  domain_mappers[ "prism" ] = mapper< PrismMapper >( "prism", mapping_options );
+  domain_mappers[ "hex" ]   = mapper< HexMapper >( "hex", mapping_options );
 }
 
-void converter::map_3d_comsol_selections_to_aero_attributes(
-  const comsol::mesh_t::selection_objects_t&     selectionObjects,
-  aero::mesh_t&                                  aMesh,
-  std::size_t&                                   attribute_overwrites,
-  const comsol::element_set_t::geometric_indicies_t& geometrySet,
-  std::size_t&                                   not_assigned ) const
+void Converter::map_3d_comsol_selections_to_aero_attributes(
+  const comsol::Mesh::SelectionObjects&        selection_objects,
+  aero::Mesh&                                  aero_mesh,
+  std::size_t&                                 attribute_overwrites,
+  const comsol::ElementSet::GeometricIndicies& geometry_set,
+  std::size_t&                                 not_assigned ) const
 {
-  auto                selectionId = geometrySet;
-  std::vector< bool > alreadySet( selectionId.size( ), false );
+  auto                selection_id = geometry_set;
+  std::vector< bool > already_set( selection_id.size( ), false );
 
-  for ( std::size_t i = 0; i != selectionObjects.size( ); i++ )
+  for ( std::size_t i = 0; i != selection_objects.size( ); i++ )
   {
-    const auto& selectionObject = selectionObjects[ i ];
+    const auto& selection_object = selection_objects[ i ];
 
-    if ( selectionObject.dimsize == 2 ) // Do not assign selections of dimension 2
+    if ( selection_object.dim_size == 2 ) // Do not assign selections of dimension 2. TODO: Maybe also disable dimension 1
     {
       continue;
     }
@@ -95,7 +95,7 @@ void converter::map_3d_comsol_selections_to_aero_attributes(
     if ( accepted_selections_.size( ) != 0 )
     {
       auto iter = std::find(
-        accepted_selections_.begin( ), accepted_selections_.end( ), selectionObject.label );
+        accepted_selections_.begin( ), accepted_selections_.end( ), selection_object.label );
       if ( iter != accepted_selections_.end( ) )
       {
         id = std::distance( accepted_selections_.begin( ), iter );
@@ -106,199 +106,203 @@ void converter::map_3d_comsol_selections_to_aero_attributes(
       }
     }
 
-    stdclog.print( "Attribute conversion." );
-    stdclog.print( "  Selection object: ", selectionObject.label );
-    stdclog.print( "    Number of entites: ", selectionObject.entities.size( ) );
+    std_clog.print( "Attribute conversion." );
+    std_clog.print( "  Selection object: ", selection_object.label );
+    std_clog.print( "    Number of entites: ", selection_object.entities.size( ) );
 
-    for ( const auto entity : selectionObject.entities )
+    for ( const auto entity : selection_object.entities )
     {
-      for ( std::size_t j = 0; j != selectionId.size( ); j++ )
+      for ( std::size_t j = 0; j != selection_id.size( ); j++ )
       {
-        if ( geometrySet[ j ] == entity )
+        if ( geometry_set[ j ] == entity )
         {
-          if ( alreadySet[ j ] )
+          if ( already_set[ j ] )
           {
             attribute_overwrites++;
           }
-          selectionId[ j ] = id + 1; // We are starting from 1 in mat definitions in the generator
-          alreadySet[ j ]  = true;
+          selection_id[ j ] = id + 1; // We are starting from 1 in mat definitions in the generator
+          already_set[ j ]  = true;
         }
       }
     }
   }
-  not_assigned += std::count( alreadySet.begin( ), alreadySet.end( ), false );
+  not_assigned += std::count( already_set.begin( ), already_set.end( ), false );
 
-  copy( selectionId.begin( ), selectionId.end( ), back_inserter( aMesh.attributes ) );
+  copy( selection_id.begin( ), selection_id.end( ), back_inserter( aero_mesh.attributes ) );
 }
 
-void converter::convert( const comsol::mesh_t& cMesh, aero::mesh_t& aMesh ) const
+void Converter::convert( const comsol::Mesh& comsol_mesh, aero::Mesh& aero_mesh ) const
 {
-  stdclog.print( "\nConverting mesh of comsol mesh to aero mesh...\n" );
+  std_clog.print( "\nConverting mesh of comsol mesh to aero mesh...\n" );
 
-  stdclog.print( "Converting nodes..." );
+  std_clog.print( "Converting nodes..." );
 
-  const auto& coords = cMesh.object.coordinates;
+  const auto& coords = comsol_mesh.object.coordinates;
 
-  stdclog.print( "  Number of nodes: ", coords.size( ) );
+  std_clog.print( "  Number of nodes: ", coords.size( ) );
 
-  copy( coords.begin( ), coords.end( ), back_inserter( aMesh.nodes ) );
+  copy( coords.begin( ), coords.end( ), back_inserter( aero_mesh.nodes ) );
 
-  auto& surfaceTopologies = aMesh.surface_topologies;
+  auto& surface_topologies = aero_mesh.surface_topologies;
 
   std::size_t attribute_overwrites = 0;
   std::size_t not_assigned         = 0;
 
-  const auto& selectionObjects = cMesh.selection_objects;
+  const auto& selection_objects = comsol_mesh.selection_object;
 
-  stdclog.print( "Converting topology" );
-  for ( size_t i = 0; i != cMesh.object.element_sets.size( ); i++ )
+  std_clog.print( "Converting topology" );
+  for ( size_t i = 0; i != comsol_mesh.object.element_sets.size( ); i++ )
   {
 
-    const auto& elementSet    = cMesh.object.element_sets[ i ];
-    const auto& elementType   = elementSet.element_type;
-    const auto& elementNameId = elementType.second;
+    const auto& elementSet    = comsol_mesh.object.element_sets[ i ];
+    const auto& element_type  = elementSet.element_type;
+    const auto& elementNameId = element_type.second;
     const auto& elements      = elementSet.elements;
-    const auto& geometrySet   = elementSet.geometric_indicies;
+    const auto& geometry_set  = elementSet.geometric_indicies;
 
-    if ( elements.size( ) != geometrySet.size( ) )
+    if ( elements.size( ) != geometry_set.size( ) )
     {
       throw runtime_error(
         "Geometric index size and element array size are not the same." ); // This is not supposed
                                                                            // to happen.
     }
 
-    auto iter = domainMappers.find( elementNameId );
+    auto iter = domain_mappers.find( elementNameId );
 
-    if ( iter != domainMappers.end( ) )
+    if ( iter != domain_mappers.end( ) )
     {
-      mapper_ptr mapper = iter->second;
+      MapperPtr mapper = iter->second;
 
       //            // This is kind of a hack. TODO: integrate this better
-      //            if ( ( mapper->getToID() == 50 ) || ( mapper->getToID() == 96 ) || (
-      //            mapper->getToID() == 103 ) )
+      //            if ( ( mapper->get_to_id() == 50 ) || ( mapper->get_to_id() == 96 ) || (
+      //            mapper->get_to_id() == 103 ) )
       //            {
-      //                mapper = domainMappers.find( "tet_50_96_103" )->second;
+      //                mapper = domain_mappers.find( "tet_50_96_103" )->second;
       //            }
 
-      stdclog.print( "Comsol type id: ",
+      std_clog.print( "Comsol type id: ",
                      elementNameId,
                      "(",
                      elements[ 0 ].size( ),
                      " nodes) to aero type id: ",
-                     mapper->getToID( ) );
-      stdclog.print( "  Number of elements: ", elements.size( ) );
+                     mapper->get_to_id( ) );
+      std_clog.print( "  Number of elements: ", elements.size( ) );
 
       for ( size_t j = 0; j != elements.size( ); j++ )
       {
         auto connectivity = mapper->map( elements[ j ] );
         // Pushing elements
-        aMesh.elements.push_back( aero::mesh_t::element_t( mapper->getToID( ), connectivity ) );
+        aero_mesh.elements.push_back( aero::Mesh::Element( mapper->get_to_id( ), connectivity ) );
       }
 
       if ( !selections_to_attributes )
       {
         // Copying attributes of each element type ( the comsol domain ids )
-        copy( geometrySet.begin( ), geometrySet.end( ), back_inserter( aMesh.attributes ) );
+        copy( geometry_set.begin( ), geometry_set.end( ), back_inserter( aero_mesh.attributes ) );
       }
       else
       {
         map_3d_comsol_selections_to_aero_attributes(
-          selectionObjects, aMesh, attribute_overwrites, geometrySet, not_assigned );
+          selection_objects, aero_mesh, attribute_overwrites, geometry_set, not_assigned );
       }
 
-      // map_comsol_surface_selections_to_aero_surfacetopo( selectionObjects, aMesh, elementSet );
+      // map_comsol_surface_selections_to_aero_surfacetopo( selection_objects, aero_mesh, elementSet
+      // );
     }
     else
     {
-      iter = boundaryMappers.find( elementNameId );
+      iter = boundary_mappers.find( elementNameId );
 
-      if ( iter != boundaryMappers.end( ) )
+      if ( iter != boundary_mappers.end( ) )
       {
 
-        mapper_ptr mapper = iter->second;
+        MapperPtr mapper = iter->second;
 
-        stdclog.print(
-          "Comsol type id: ", elementNameId, " to Aero surfacetopo type id: ", mapper->getToID( ) );
-        stdclog.print( "  Number of faces: ", geometrySet.size( ) );
+        std_clog.print( "Comsol type id: ",
+                       elementNameId,
+                       " to Aero surfacetopo type id: ",
+                       mapper->get_to_id( ) );
+        std_clog.print( "  Number of faces: ", geometry_set.size( ) );
 
         // Collect the  connectivity data on surface topologies
-        for ( size_t j = 0; j != geometrySet.size( ); j++ )
+        for ( size_t j = 0; j != geometry_set.size( ); j++ )
         {
           auto connectivity = mapper->map( elements[ j ] );
 
           std::string prefix;
           if ( prefixes.size( ) != 0 )
           {
-            if ( geometrySet[ j ] >= prefixes.size( ) )
+            if ( geometry_set[ j ] >= prefixes.size( ) )
             {
               throw std::invalid_argument(
                 "Comsol geometry contains more surfaces than the number of surface names "
                 "provided." );
             }
-            prefix = prefixes[ geometrySet[ j ] ];
+            prefix = prefixes[ geometry_set[ j ] ];
           }
 
-          aero::mesh_t::topology_id_t id( prefix, geometrySet[ j ] + 1 );
+          aero::Mesh::TopologyId id( prefix, geometry_set[ j ] + 1 );
 
-          auto& geom = surfaceTopologies[ id ];
-          geom.push_back( aero::mesh_t::element_t( mapper->getToID( ), connectivity ) );
+          auto& geom = surface_topologies[ id ];
+          geom.push_back( aero::Mesh::Element( mapper->get_to_id( ), connectivity ) );
         }
 
-        // map_comsol_surface_selections_to_aero_surfacetopo( selectionObjects, aMesh, elementSet );
+        // map_comsol_surface_selections_to_aero_surfacetopo( selection_objects, aero_mesh,
+        // elementSet );
       }
       else
       {
-        stdclog.print(
+        std_clog.print(
           "Warning: Element with Comsol id name: ", elementNameId, " is not currently supported." );
       }
     }
 
     if ( accepted_selections_.size( ) == 0 )
     {
-      for ( const auto& selection : selectionObjects )
+      for ( const auto& selection : selection_objects )
       {
-        aMesh.attribute_labels.push_back( selection.label );
+        aero_mesh.attribute_labels.push_back( selection.label );
       }
     }
     else
     {
       for ( const auto& label : accepted_selections_ )
-        aMesh.attribute_labels.push_back( label );
+        aero_mesh.attribute_labels.push_back( label );
     }
   }
 
   // Convert surface selections
-  if ( selectionObjects.size( ) != 0 )
+  if ( selection_objects.size( ) != 0 )
   {
-    stdclog.print( "Surface selections conversion." );
+    std_clog.print( "Surface selections conversion." );
   }
 
-  for ( std::size_t i = 0; i != selectionObjects.size( ); i++ )
+  for ( std::size_t i = 0; i != selection_objects.size( ); i++ )
   {
-    const auto& selectionObject = selectionObjects[ i ];
+    const auto& selection_object = selection_objects[ i ];
 
-    if ( is_surface_selection( selectionObject ) )
+    if ( is_surface_selection( selection_object ) )
     {
-      stdclog.print( "  Surface Selection: ", selectionObject.label );
-      stdclog.print( "    Entities: ", selectionObject.entities.size( ) );
+      std_clog.print( "  Surface Selection: ", selection_object.label );
+      std_clog.print( "    Entities: ", selection_object.entities.size( ) );
 
-      aMesh.selection_surface_topologies.push_back( aero::mesh_t::selection_surface_topology_t( ) );
+      aero_mesh.selection_surface_topologies.push_back( aero::Mesh::SelectionSurfaceTopology( ) );
 
-      auto& selectionSurfaceTopology = *( aMesh.selection_surface_topologies.rbegin( ) );
+      auto& selection_surface_topology = *( aero_mesh.selection_surface_topologies.rbegin( ) );
 
-      selectionSurfaceTopology.first = selectionObject.label;
-      auto& selectionSurfaceElements = selectionSurfaceTopology.second;
+      selection_surface_topology.first = selection_object.label;
+      auto& selection_surface_elements = selection_surface_topology.second;
 
-      for ( const auto entityID : selectionObject.entities )
+      for ( const auto entityID : selection_object.entities )
       {
-        for ( const auto& entity : surfaceTopologies )
+        for ( const auto& entity : surface_topologies )
         {
           if ( entity.first.second - 1 == entityID )
           {
             const auto& elems = entity.second;
             for ( const auto& e : elems )
             {
-              selectionSurfaceElements.push_back( e );
+              selection_surface_elements.push_back( e );
             }
           }
         }
@@ -327,7 +331,7 @@ void converter::convert( const comsol::mesh_t& cMesh, aero::mesh_t& aMesh ) cons
             "possible elements and that command line arguments "
             "contain them. Alternatively do not provide any "
             "selection names in the -s command.";
-      if ( selectionObjects.size( ) == 0 )
+      if ( selection_objects.size( ) == 0 )
       {
         ss << " No selections detected in comsol file."; // TODO: We could check this earlier.
       }
@@ -335,9 +339,9 @@ void converter::convert( const comsol::mesh_t& cMesh, aero::mesh_t& aMesh ) cons
       {
         ss << " Selections detected in comsol file follow";
 
-        for ( const auto& selectionObject : selectionObjects )
+        for ( const auto& selection_object : selection_objects )
         {
-          ss << ", " << selectionObject.label;
+          ss << ", " << selection_object.label;
         }
       }
       throw std::invalid_argument( ss.str( ) );

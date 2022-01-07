@@ -1,4 +1,4 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
+// comsol2aero: a comsol mesh to frg aero mesh Converter
 
 // AUTHORIZATION TO USE AND DISTRIBUTE. By using or distributing the comsol2aero software
 // ("THE SOFTWARE"), you agree to the following terms governing the use and redistribution of
@@ -34,9 +34,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from third
-// parties. These are available on an "as is" basis and subject to their individual license agreements.
-// Additional information can be found in the provided "licenses" folder.
+// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from
+// third parties. These are available on an "as is" basis and subject to their individual license
+// agreements. Additional information can be found in the provided "licenses" folder.
 
 #ifndef COMSOLPARSER_HPP
 #define COMSOLPARSER_HPP
@@ -81,9 +81,9 @@ using std::string;
 inline const auto comment = ( "#" >> lexeme[ +( char_ - eol ) ] );
 
 template< typename Iterator >
-struct mesh_skipper : public grammar< Iterator >
+struct MeshSkipper : public grammar< Iterator >
 {
-  mesh_skipper( ) : mesh_skipper::base_type( skip )
+  MeshSkipper( ) : MeshSkipper::base_type( skip )
   {
     skip = +( space | comment );
   }
@@ -92,53 +92,54 @@ struct mesh_skipper : public grammar< Iterator >
 };
 
 // Connectivity data grammar
-template< typename Iterator, class skipper = mesh_skipper< Iterator > >
-struct element_set_grammar : grammar< Iterator, element_set_t( ), locals< size_t, size_t >, skipper >
+template< typename Iterator, class skipper = MeshSkipper< Iterator > >
+struct ElementSetGrammar : grammar< Iterator, ElementSet( ), locals< size_t, size_t >, skipper >
 {
-  element_set_grammar( ) : element_set_grammar::base_type( set, "Comsol Element Set" )
+  ElementSetGrammar( ) : ElementSetGrammar::base_type( set, "Comsol Element Set" )
   {
     // FIXME: Maybe relax the element type requirements here.
-    elementType %= lexeme[ uint_ > +space ]
-                   > ( qi::string( "vtx" ) | qi::string( "edg" ) | qi::string( "tet" )
-                       | qi::string( "tri" ) | qi::string( "quad" ) | qi::string( "hex" )
-                       | qi::string( "pyr" ) | qi::string( "prism" ) );
+    element_type %= lexeme[ uint_ > +space ]
+                    > ( qi::string( "vtx" ) | qi::string( "edg" ) | qi::string( "tet" )
+                        | qi::string( "tri" ) | qi::string( "quad" ) | qi::string( "hex" )
+                        | qi::string( "pyr" ) | qi::string( "prism" ) );
 
-    geomIndiciesCount %= omit[ uint_( ref( elemCount ) ) ];
-    geomIndiciesCount.name( "geometric indicies count equal to element count" );
+    geom_indicies_count %= omit[ uint_( ref( elemCount ) ) ];
+    geom_indicies_count.name( "geometric indicies count equal to element count" );
 
-    set %= elementType > omit[ uint_[ _a = _1 ] ]                  // Number of nodes per element
-           > omit[ uint_[ ref( elemCount ) = _1 ] ]                // Number of elements
-           > repeat( ref( elemCount ) )[ repeat( _a )[ double_ ] ] // Elements
-           > geomIndiciesCount // Number of geometric indicies: must be equal to number of elements
-           > repeat( ref( elemCount ) )[ uint_ ]; // Geometric Indicies // FIXME: Handle error on
-                                                  // repetition properly
+    set
+      %= element_type > omit[ uint_[ _a = _1 ] ]                 // Number of nodes per element
+         > omit[ uint_[ ref( elemCount ) = _1 ] ]                // Number of elements
+         > repeat( ref( elemCount ) )[ repeat( _a )[ double_ ] ] // Elements
+         > geom_indicies_count // Number of geometric indicies: must be equal to number of elements
+         > repeat( ref( elemCount ) )[ uint_ ]; // Geometric Indicies // FIXME: Handle error on
+                                                // repetition properly
 
     set.name( "Comsol element set definition" );
   }
 
-  rule< Iterator, element_set_t( ), locals< size_t, size_t >, skipper > set;
+  rule< Iterator, ElementSet( ), locals< size_t, size_t >, skipper > set;
 
-  rule< Iterator, skipper > geomIndiciesCount;
+  rule< Iterator, skipper > geom_indicies_count;
 
-  rule< Iterator, element_set_t::element_type_t( ), skipper > elementType;
+  rule< Iterator, ElementSet::ElementType( ), skipper > element_type;
 
   size_t elemCount = 0;
 };
 
 // Mesh (nodes + connectivity)
-template< typename Iterator, class skipper = mesh_skipper< Iterator > >
-struct mesh_object_grammar : grammar< Iterator, mesh_object_t( ), locals< size_t, size_t >, skipper >
+template< typename Iterator, class skipper = MeshSkipper< Iterator > >
+struct MeshObjectGrammar : grammar< Iterator, MeshObject( ), locals< size_t, size_t >, skipper >
 {
-  mesh_object_grammar( ) : mesh_object_grammar::base_type( object, "Comsol mesh object" )
+  MeshObjectGrammar( ) : MeshObjectGrammar::base_type( object, "Comsol mesh object" )
   {
 
     baseIndex %= uint_( 0 );
     baseIndex.name( "lowest mesh point index equal to 0" );
 
-    elementSets
+    element_sets
       %= omit[ uint_[ _a = _1 ] ] > repeat(
-           _a )[ elemParser ]; // Fixme: enforce that number of element sets later in parsing
-    elementSets.name( "Element sets" );
+           _a )[ elem_parser ]; // Fixme: enforce that number of element sets later in parsing
+    element_sets.name( "Element sets" );
 
     point %= repeat( ref( sdim ) )[ double_ ];
     point.name( "Point coordinates" );
@@ -148,23 +149,23 @@ struct mesh_object_grammar : grammar< Iterator, mesh_object_t( ), locals< size_t
 
     object
       %= omit[ uint_ > uint_
-               > uint_ ] // Not sure about what those three numbers are in the comsol mesh file
+               > uint_ ] // Not sure about what these three numbers are in the comsol mesh file
          > lexeme[ uint_ > +space > lit( "Mesh" ) ] // Fixme: Currently we support only mesh objects
          > uint_                                    // Version (Comsol version?)
          > uint_[ ref( sdim ) = _1 ]                // Number of space dimensions
          > uint_[ ref( numPoints ) = _1 ]           // Number of points
-         > baseIndex    // First index. FIXME: Support non 0 base indexing
-         > coords       // Point coordinates
-         > elementSets; // Element Sets
+         > baseIndex     // First index. FIXME: Support non 0 base indexing
+         > coords        // Point coordinates
+         > element_sets; // Element Sets
   }
 
-  rule< Iterator, mesh_object_t( ), locals< size_t, size_t >, skipper >       object;
-  rule< Iterator, mesh_object_t::element_sets_t( ), locals< size_t >, skipper > elementSets;
-  rule< Iterator, size_t( ), skipper >                                      baseIndex;
-  rule< Iterator, mesh_object_t::point_t( ), skipper >                        point;
-  rule< Iterator, mesh_object_t::coords_t( ), skipper >                       coords;
+  rule< Iterator, MeshObject( ), locals< size_t, size_t >, skipper >      object;
+  rule< Iterator, MeshObject::ElementSets( ), locals< size_t >, skipper > element_sets;
+  rule< Iterator, size_t( ), skipper >                                    baseIndex;
+  rule< Iterator, MeshObject::Point( ), skipper >                         point;
+  rule< Iterator, MeshObject::Coords( ), skipper >                        coords;
 
-  element_set_grammar< Iterator > elemParser;
+  ElementSetGrammar< Iterator > elem_parser;
 
   size_t sdim = 0;
 
@@ -172,12 +173,11 @@ struct mesh_object_grammar : grammar< Iterator, mesh_object_t( ), locals< size_t
 };
 
 // Selection (nodes + connectivity)
-template< typename Iterator, class skipper = mesh_skipper< Iterator > >
-struct selection_object_grammar :
-  grammar< Iterator, selection_object_t( ), locals< size_t, size_t >, skipper >
+template< typename Iterator, class skipper = MeshSkipper< Iterator > >
+struct SelectionObjectGrammar :
+  grammar< Iterator, SelectionObject( ), locals< size_t, size_t >, skipper >
 {
-  selection_object_grammar( ) :
-    selection_object_grammar::base_type( object, "Comsol selection object" )
+  SelectionObjectGrammar( ) : SelectionObjectGrammar::base_type( object, "Comsol selection object" )
   {
 
     label %= omit[ uint_ ] > lexeme[ +( char_ - eol - comment ) ];
@@ -189,30 +189,26 @@ struct selection_object_grammar :
 
     object %= omit[ uint_ > uint_
                     > uint_ ] // Not sure about what those three numbers are in the comsol mesh file
-              > lexeme[ uint_ > +space
-                        > lit( "Selection" ) ]
-              > uint_
-              > label
-              > omit[ uint_ > lexeme[ +( char_ - eol - comment ) ] ]
-              > uint_ // # Dimension
-              > omit[ uint_[ ref( numEntities ) = _1 ] ] // # Number of entities
+              > lexeme[ uint_ > +space > lit( "Selection" ) ] > uint_ > label
+              > omit[ uint_ > lexeme[ +( char_ - eol - comment ) ] ] > uint_ // # Dimension
+              > omit[ uint_[ ref( numEntities ) = _1 ] ]                     // # Number of entities
               > entities;
   }
 
-  rule< Iterator, selection_object_t( ), locals< size_t, size_t >, skipper > object;
-  rule< Iterator, string( ), skipper >                                       label;
-  rule< Iterator, selection_object_t::entities_t( ), skipper >               entities;
+  rule< Iterator, SelectionObject( ), locals< size_t, size_t >, skipper > object;
+  rule< Iterator, string( ), skipper >                                    label;
+  rule< Iterator, SelectionObject::Entities( ), skipper >                 entities;
 
   size_t numEntities = 0;
 };
 
-template< typename Iterator, class skipper = mesh_skipper< Iterator > >
-struct mesh_grammar : grammar< Iterator, mesh_t( ), skipper >
+template< typename Iterator, class skipper = MeshSkipper< Iterator > >
+struct MeshGrammar : grammar< Iterator, Mesh( ), skipper >
 {
-  mesh_grammar( error_handler< Iterator >& errorHandler ) :
-    mesh_grammar::base_type( mesh, "Comsol mesh" ), errorHandler_( errorHandler )
+  MeshGrammar( ErrorHandler< Iterator >& error_handler ) :
+    MeshGrammar::base_type( mesh, "Comsol mesh" ), error_handler_( error_handler )
   {
-    typedef function< error_handler< Iterator > > error_handler_function;
+    typedef function< ErrorHandler< Iterator > > ErrorHandler_function;
 
     timestamp %= no_skip[ lit( "# Created by COMSOL Multiphysics" ) >> +( char_ - eol ) ];
     timestamp.name( "Timestamp preceeded by \"# Created by COMSOL Multiphysics\"" );
@@ -221,51 +217,51 @@ struct mesh_grammar : grammar< Iterator, mesh_t( ), skipper >
     version.name( "Version id in the form: integer integer" );
 
     tags %= omit[ uint_[ _a = _1 ] ]
-            > repeat( _a )[ lexeme[ uint_ > +space ]
-                            > lexeme[ +( char_ - eol - comment ) ] ];
+            > repeat( _a )[ lexeme[ uint_ > +space ] > lexeme[ +( char_ - eol - comment ) ] ];
     tags.name( "Tags definition" );
 
-    types %= omit[ uint_[ _a = _1 ] ]
-             > repeat( _a )[ lexeme[ uint_ > +space ]
-                             > lexeme[ +( char_ - eol - comment ) ] ]; // TODO: I think all theses should be +( char_ - eol) - comment
+    types %= omit[ uint_[ _a = _1 ] ] > repeat(
+               _a )[ lexeme[ uint_ > +space ]
+                     > lexeme[ +( char_ - eol - comment ) ] ]; // TODO: I think all theses should be
+                                                               // +( char_ - eol) - comment
     types.name( "Object types definition" );
 
-    comsolMeshObject %= objParser;
-    comsolMeshObject.name( "mesh object" );
+    comsol_mesh_object %= obj_parser;
+    comsol_mesh_object.name( "mesh object" );
 
-    comsolSelectionObject %= selObjParser;
-    comsolSelectionObject.name( "selection object" );
+    comsol_selection_object %= sel_obj_parser;
+    comsol_selection_object.name( "selection object" );
 
-    mesh %= no_skip[ eps ] > timestamp > version > tags > types > comsolMeshObject
-            > repeat[ comsolSelectionObject ];
+    mesh %= no_skip[ eps ] > timestamp > version > tags > types > comsol_mesh_object
+            > repeat[ comsol_selection_object ];
 
-    on_error< fail >( mesh, error_handler_function( errorHandler_ )( "Error:", _4, _3 ) );
+    on_error< fail >( mesh, ErrorHandler_function( error_handler_ )( "Error:", _4, _3 ) );
   }
 
-  rule< Iterator, mesh_t( ), skipper >                            mesh;
-  rule< Iterator, string( ), skipper >                            timestamp;
-  rule< Iterator, mesh_t::version_t( ), skipper >                 version;
-  rule< Iterator, mesh_t::tags_t( ), locals< size_t >, skipper >  tags;
-  rule< Iterator, mesh_t::types_t( ), locals< size_t >, skipper > types;
-  rule< Iterator, mesh_object_t( ), skipper >                       comsolMeshObject;
-  rule< Iterator, selection_object_t( ), skipper >                comsolSelectionObject;
+  rule< Iterator, Mesh( ), skipper >                          mesh;
+  rule< Iterator, string( ), skipper >                        timestamp;
+  rule< Iterator, Mesh::Version( ), skipper >                 version;
+  rule< Iterator, Mesh::Tags( ), locals< size_t >, skipper >  tags;
+  rule< Iterator, Mesh::Types( ), locals< size_t >, skipper > types;
+  rule< Iterator, MeshObject( ), skipper >                    comsol_mesh_object;
+  rule< Iterator, SelectionObject( ), skipper >               comsol_selection_object;
 
-  mesh_object_grammar< Iterator >      objParser;
-  selection_object_grammar< Iterator > selObjParser;
+  MeshObjectGrammar< Iterator >      obj_parser;
+  SelectionObjectGrammar< Iterator > sel_obj_parser;
 
-  error_handler< Iterator >& errorHandler_;
+  ErrorHandler< Iterator >& error_handler_;
 };
 
-class parser
+class Parser
 {
 public:
-  parser( bool verb );
+  Parser( bool verb );
 
   template< class S >
   void parse( S& stream )
   {
 
-    model = mesh_t( );
+    model = Mesh( );
 
     string storage;
 
@@ -277,26 +273,26 @@ public:
     string::const_iterator iter = storage.begin( );
     string::const_iterator end  = storage.end( );
 
-    error_handler< string::const_iterator > errorHandler( iter, end );
+    ErrorHandler< string::const_iterator > error_handler( iter, end );
 
-    typedef mesh_grammar< string::const_iterator > grammar;
+    typedef MeshGrammar< string::const_iterator > grammar;
 
-    grammar meshParser( errorHandler );
+    grammar mesh_parser( error_handler );
 
-    typedef mesh_skipper< string::const_iterator > skipper_type;
+    typedef MeshSkipper< string::const_iterator > skipper_type;
 
     skipper_type skipper;
 
-    bool r = phrase_parse( iter, end, meshParser, skipper, model );
+    bool r = phrase_parse( iter, end, mesh_parser, skipper, model );
 
     if ( r && iter == end )
     {
       // Todo, can we move the trimming inside the parsing?
-      for ( auto& selectionObjects : model.selection_objects )
+      for ( auto& selection_objects : model.selection_object )
       {
-        selectionObjects.label = trim( selectionObjects.label );
+        selection_objects.label = trim( selection_objects.label );
       }
-      printModel( );
+      print_model( );
     }
     else
     {
@@ -304,21 +300,21 @@ public:
     }
   }
 
-  void parse( string& fileName );
+  void parse( string& file_name );
 
-  const mesh_t& getModel( ) const
+  const Mesh& getModel( ) const
   {
     return model;
   }
 
 private:
-  void printModel( );
+  void print_model( );
 
-  mesh_t model;
+  Mesh model;
 
-  char_streamer< ostream > stdclog;
+  CharStreamer< ostream > stdclog;
 #ifdef NDEBUG
-  none_char_streamer< ostream > debugstdout;
+  NoneCharStreamer< ostream > debugstdout;
 #else
   char_streamer< ostream > debugstdout;
 #endif

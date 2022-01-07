@@ -1,4 +1,4 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
+// comsol2aero: a comsol mesh to frg aero mesh Converter
 
 // AUTHORIZATION TO USE AND DISTRIBUTE. By using or distributing the comsol2aero software
 // ("THE SOFTWARE"), you agree to the following terms governing the use and redistribution of
@@ -34,9 +34,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from third
-// parties. These are available on an "as is" basis and subject to their individual license agreements.
-// Additional information can be found in the provided "licenses" folder.
+// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from
+// third parties. These are available on an "as is" basis and subject to their individual license
+// agreements. Additional information can be found in the provided "licenses" folder.
 
 #ifndef char_streamer_H
 #define char_streamer_H
@@ -44,14 +44,14 @@
 #include "utils.hpp"
 
 template< class S >
-class char_streamer
+class CharStreamer
 {
 public:
-  char_streamer( S& stream, bool active = true ) : stream_( stream ), active_( active )
+  CharStreamer( S& stream, bool active = true ) : stream_( stream ), active_( active )
   {
   }
 
-  void setActive( bool active )
+  void set_active( bool active )
   {
     active_ = active;
   }
@@ -77,10 +77,10 @@ private:
 
 // For NDEBUG
 template< class S >
-class none_char_streamer
+class NoneCharStreamer
 {
 public:
-  none_char_streamer( S& /*stream*/, bool /*active = true*/ )
+  NoneCharStreamer( S& /*stream*/, bool /*active = true*/ )
   {
   }
 
@@ -89,7 +89,7 @@ public:
   {
   }
 
-  bool isActive( )
+  bool is_active( )
     const // Fixme::make this constexpr (MSVC doesn't support currently ( May 2014 ) )
   {
     return false;

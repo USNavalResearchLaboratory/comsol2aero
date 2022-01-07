@@ -1,4 +1,4 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
+// comsol2aero: a comsol mesh to frg aero mesh Converter
 
 // AUTHORIZATION TO USE AND DISTRIBUTE. By using or distributing the comsol2aero software
 // ("THE SOFTWARE"), you agree to the following terms governing the use and redistribution of
@@ -34,9 +34,9 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from third
-// parties. These are available on an "as is" basis and subject to their individual license agreements.
-// Additional information can be found in the provided "licenses" folder.
+// NOTICE OF THIRD-PARTY SOFTWARE LICENSES. This software uses open source software packages from
+// third parties. These are available on an "as is" basis and subject to their individual license
+// agreements. Additional information can be found in the provided "licenses" folder.
 
 #ifndef AEROFGENERATOR_H
 #define AEROFGENERATOR_H
@@ -70,7 +70,7 @@ using std::string;
 
 // Formatting policy
 template< typename Num >
-struct real_policy : real_policies< Num >
+struct RealPolicy : real_policies< Num >
 {
   static int floatfield( Num )
   {
@@ -89,16 +89,16 @@ struct real_policy : real_policies< Num >
 };
 
 // Formatted double generator
-typedef real_generator< double, real_policy< double > > real_type;
+using RealType = real_generator< double, RealPolicy< double > >;
 
 // The core structure of the generator
 template< typename OutputIterator >
-struct generator_grammar : grammar< OutputIterator, mesh_t( ) >
+struct GeneratorGrammar : grammar< OutputIterator, Mesh( ) >
 {
-  generator_grammar( ) : generator_grammar::base_type( mesh )
+  GeneratorGrammar( ) : GeneratorGrammar::base_type( mesh )
   {
 
-    mesh = nodes << eol << elements << eol << omit[ attributes_labels ] << omit[ attributes ]
+    mesh = nodes << eol << elements << eol << omit[ attribute_labels ] << omit[ attributes ]
                  << omit[ matusage ] << topologies << eol;
 
     nodes %= "Nodes FluidNodes" << eol << eps[ _a = 1 ]
@@ -109,7 +109,7 @@ struct generator_grammar : grammar< OutputIterator, mesh_t( ) >
 
     element = uint_ << ' ' << uint_ % ' ';
 
-    attributes_labels
+    attribute_labels
       %= ( "* Attributes/matusage labels"
            << eol << eps[ _a = 1 ]
            << ( "* " << lit( _a ) << eps[ ++_a ] << ' ' << boost::spirit::karma::string ) % eol )
@@ -131,56 +131,56 @@ struct generator_grammar : grammar< OutputIterator, mesh_t( ) >
                               << " using FluidNodes";
   }
 
-  rule< OutputIterator, mesh_t( ) >                                       mesh;
-  rule< OutputIterator, locals< size_t >, mesh_t::nodes_t( ) >            nodes;
-  rule< OutputIterator, locals< size_t >, mesh_t::elements_t( ) >         elements;
-  rule< OutputIterator, mesh_t::element_t( ) >                            element;
-  rule< OutputIterator, locals< size_t >, mesh_t::attribute_labels_t( ) > attributes_labels;
-  rule< OutputIterator, locals< size_t >, mesh_t::attributes_t( ) >       attributes;
-  rule< OutputIterator, locals< size_t >, mesh_t::attributes_t( ) >       matusage;
-  rule< OutputIterator, locals< size_t >, mesh_t::surface_topologies_t( ) > topologies;
-  rule< OutputIterator, mesh_t::topology_id_t( ) >                        topology_id;
+  rule< OutputIterator, Mesh( ) >                                      mesh;
+  rule< OutputIterator, locals< size_t >, Mesh::Nodes( ) >             nodes;
+  rule< OutputIterator, locals< size_t >, Mesh::Elements( ) >          elements;
+  rule< OutputIterator, Mesh::Element( ) >                             element;
+  rule< OutputIterator, locals< size_t >, Mesh::AttributeLabels( ) >   attribute_labels;
+  rule< OutputIterator, locals< size_t >, Mesh::Attributes( ) >        attributes;
+  rule< OutputIterator, locals< size_t >, Mesh::Attributes( ) >        matusage;
+  rule< OutputIterator, locals< size_t >, Mesh::SurfaceTopologies( ) > topologies;
+  rule< OutputIterator, Mesh::TopologyId( ) >                          topology_id;
 
-  real_type const real_;
+  RealType const real_;
 };
 
-class generator
+class Generator
 {
 
 public:
-  generator( bool verb, const mesh_t& aMesh );
+  Generator( bool verb, const Mesh& aero_mesh );
 
-  void generate( string fileName ) const;
+  void generate( string file_name ) const;
 
   template< class S >
   void generate( S& stream ) const
   {
     namespace karma = boost::spirit::karma;
 
-    string outputString;
+    string output_string;
 
-    typedef back_insert_iterator< string > sink_t;
+    typedef back_insert_iterator< string > Sink;
 
-    sink_t sink( outputString );
+    Sink sink( output_string );
 
-    generator_grammar< sink_t > g;
+    GeneratorGrammar< Sink > g;
 
     if ( !karma::generate( sink, g, mesh ) )
     {
       throw runtime_error( "Aero mesh generation failed." );
     }
 
-    stream << outputString;
+    stream << output_string;
 
     stdclog.print( "Aero mesh generation completed." );
   }
 
 private:
-  const mesh_t& mesh;
+  const Mesh& mesh;
 
-  char_streamer< ostream > stdclog;
+  CharStreamer< ostream > stdclog;
 #ifdef NDEBUG
-  none_char_streamer< ostream > debugstdout;
+  NoneCharStreamer< ostream > debugstdout;
 #else
   char_streamer< ostream > debugstdout;
 #endif

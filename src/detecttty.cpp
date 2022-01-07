@@ -12,7 +12,7 @@
 
 #endif
 
-bool is_stdin_a_tty( )
+bool IsStdinAtty( )
 {
 
 #ifdef _MSC_VER

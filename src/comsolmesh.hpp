@@ -1,4 +1,4 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
+// comsol2aero: a comsol mesh to frg aero mesh Converter
 
 // AUTHORIZATION TO USE AND DISTRIBUTE. By using or distributing the comsol2aero software
 // ("THE SOFTWARE"), you agree to the following terms governing the use and redistribution of
@@ -53,128 +53,127 @@ namespace comsol
 
 using namespace std;
 
-// _t is used to denotate that this is a C++ type. _type conveys its actual
-// semantics. For example element_type is the actual element type (e.g. tri,
-// tet etc., while element_t is the C++ type that represents an element.
+// postfix Type conveys the semantic type and not the C++ type.
+// Element is the C++ type that represents a finite element.
 
-struct element_set_t
+struct ElementSet
 {
-  using element_type_t       = pair< size_t, string >;
-  using element_t            = vector< size_t >;
-  using elements_t           = vector< element_t >;
-  using geometric_indicies_t = vector< size_t >;
+  using ElementType       = pair< size_t, string >;
+  using Element           = vector< size_t >;
+  using Elements          = vector< Element >;
+  using GeometricIndicies = vector< size_t >;
 
-  element_type_t       element_type;
-  elements_t           elements;
-  geometric_indicies_t geometric_indicies;
+  ElementType       element_type;
+  Elements          elements;
+  GeometricIndicies geometric_indicies;
 };
 
 } // namespace comsol
 
 // clang-format off
-BOOST_FUSION_ADAPT_STRUCT( comsol::element_set_t,
-  ( comsol::element_set_t::element_type_t,       element_type )
-  ( comsol::element_set_t::elements_t,           elements )
-  ( comsol::element_set_t::geometric_indicies_t, geometric_indicies ) )
+BOOST_FUSION_ADAPT_STRUCT( comsol::ElementSet,
+  ( comsol::ElementSet::ElementType,       element_type )
+  ( comsol::ElementSet::Elements,          elements )
+  ( comsol::ElementSet::GeometricIndicies, geometric_indicies ) )
 // clang-format on
 
 namespace comsol
 {
 
-struct mesh_object_t
+struct MeshObject
 {
-  using element_sets_t = vector< element_set_t >;
-  using point_t        = vector< double >; // FIXME: We could possibly restrict
-                                           // this to 2 or 3 dim arrays, but
-                                           // performance gains may be minimal.
-  using coords_t = vector< point_t >;
+  using ElementSets = vector< ElementSet >;
+  using Point       = vector< double >; // FIXME: We could possibly restrict
+                                        // this to 2 or 3 dim arrays, but
+                                        // performance gains may be minimal.
+  using Coords = vector< Point >;
 
-  size_t classId;
+  size_t class_id;
 
   size_t version;
-  size_t spaceDimensions;
-  size_t numMeshPoints;
+  size_t space_dimensions;
+  size_t num_mesh_points;
   size_t index0;
 
-  coords_t coordinates;
+  Coords coordinates;
 
-  element_sets_t element_sets; // FIXME: Are elementSets part of mesh objects or
-                               // they are separate entities?
+  ElementSets element_sets; // FIXME: Are element_sets part of mesh objects or
+                            // they are separate entities?
 };
 
 } // namespace comsol
 
 // clang-format off
-BOOST_FUSION_ADAPT_STRUCT( comsol::mesh_object_t,
-  ( size_t,                                classId )
-  ( size_t,                                version )
-  ( size_t,                                spaceDimensions )
-  ( size_t,                                numMeshPoints )
-  ( size_t,                                index0 )
-  ( comsol::mesh_object_t::coords_t,       coordinates )
-  ( comsol::mesh_object_t::element_sets_t, element_sets )
+BOOST_FUSION_ADAPT_STRUCT( comsol::MeshObject,
+  ( size_t,                          class_id )
+  ( size_t,                          version )
+  ( size_t,                          space_dimensions )
+  ( size_t,                          num_mesh_points )
+  ( size_t,                          index0 )
+  ( comsol::MeshObject::Coords,      coordinates )
+  ( comsol::MeshObject::ElementSets, element_sets )
 )
 // clang-format on
 
 namespace comsol
 {
 
-struct selection_object_t
+struct SelectionObject
 {
-  using entities_t = vector< size_t >;
+  using Entities = vector< size_t >;
 
-  size_t     classId;
-  size_t     version;
-  string     label;
-  size_t     dimsize;
-  entities_t entities;
+  size_t   class_id;
+  size_t   version;
+  string   label;
+  size_t   dim_size;
+  Entities entities;
 };
 
 } // namespace comsol
 
 // clang-format off
-BOOST_FUSION_ADAPT_STRUCT( comsol::selection_object_t,
-  ( size_t,                                 classId )
-  ( size_t,                                 version )
-  ( std::string,                            label )
-  ( size_t,                                 dimsize )
-  ( comsol::selection_object_t::entities_t, entities )
+BOOST_FUSION_ADAPT_STRUCT( comsol::SelectionObject,
+  ( size_t,                            class_id )
+  ( size_t,                            version )
+  ( std::string,                       label )
+  ( size_t,                            dim_size )
+  ( comsol::SelectionObject::Entities, entities )
 )
 // clang-format on
 
 namespace comsol
 {
 
-struct mesh_t
+struct Mesh
 {
-  using version_t = pair< size_t, size_t >;
+  using Version = pair< size_t, size_t >;
 
-  using tag_t  = pair< size_t, string >;
-  using tags_t = vector< tag_t >;
+  using Tag  = pair< size_t, string >;
+  using Tags = vector< Tag >;
 
-  using type_t  = pair< size_t, string >;
-  using types_t = vector< type_t >;
+  using Type  = pair< size_t, string >;
+  using Types = vector< Type >;
 
-  using selection_objects_t = vector< selection_object_t >;
+  using SelectionObjects = vector< SelectionObject >;
 
-  string              created;
-  version_t           version;
-  tags_t              tags;
-  types_t             types;
-  mesh_object_t         object;
-  selection_objects_t selection_objects;
+  string           created;
+  Version          version;
+  Tags             tags;
+  Types            types;
+  MeshObject       object;
+  SelectionObjects selection_object;
 };
 
 } // namespace comsol
 
 // clang-format off
-BOOST_FUSION_ADAPT_STRUCT( comsol::mesh_t,
-  ( std::string,                         created )
-  ( comsol::mesh_t::version_t,           version )
-  ( comsol::mesh_t::tags_t,              tags )
-  ( comsol::mesh_t::types_t,             types )
-  ( comsol::mesh_object_t,               object )
-  ( comsol::mesh_t::selection_objects_t, selection_objects )
+BOOST_FUSION_ADAPT_STRUCT( comsol::Mesh,
+  ( std::string,                    created )
+  ( comsol::Mesh::Version,          version )
+  ( comsol::Mesh::Tags,             tags )
+  ( comsol::Mesh::Types,            types )
+  ( comsol::MeshObject,             object )
+  ( comsol::Mesh::SelectionObjects, selection_object )
 )
 // clang-format on
 #endif // COMSOLMODEL_HPP

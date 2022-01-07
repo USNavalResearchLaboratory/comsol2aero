@@ -1,4 +1,4 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
+// comsol2aero: a comsol mesh to frg aero mesh Converter
 
 // AUTHORIZATION TO USE AND DISTRIBUTE. By using or distributing the comsol2aero software
 // ("THE SOFTWARE"), you agree to the following terms governing the use and redistribution of
@@ -40,6 +40,7 @@
 
 #ifndef UTILS_HPP
 #define UTILS_HPP
+
 template< class S, typename T >
 void safe_print( S& stream, const T& value )
 {

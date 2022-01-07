@@ -1,4 +1,4 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
+// comsol2aero: a comsol mesh to frg aero mesh Converter
 
 // AUTHORIZATION TO USE AND DISTRIBUTE. By using or distributing the comsol2aero software
 // ("THE SOFTWARE"), you agree to the following terms governing the use and redistribution of
@@ -49,7 +49,7 @@ namespace comsol
 {
 
 template< typename Iterator >
-struct error_handler
+struct ErrorHandler
 {
   // This is not working with newer boost/gcc versions
   // template <typename, typename, typename>
@@ -66,7 +66,7 @@ struct error_handler
   // template <typename F, typename X, typename Y>
   // struct result<F(X,Y)> { typedef void type; };
 
-  error_handler( Iterator first, Iterator last ) : first( first ), last( last )
+  ErrorHandler( Iterator first, Iterator last ) : first( first ), last( last )
   {
   }
 

@@ -1,4 +1,4 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
+// comsol2aero: a comsol mesh to frg aero mesh Converter
 
 // AUTHORIZATION TO USE AND DISTRIBUTE. By using or distributing the comsol2aero software
 // ("THE SOFTWARE"), you agree to the following terms governing the use and redistribution of
@@ -71,7 +71,7 @@ using std::string;
 
 // Formatting policy
 template< typename Num >
-struct real_policy : real_policies< Num >
+struct RealPolicy : real_policies< Num >
 {
   static int floatfield( Num )
   {
@@ -90,18 +90,18 @@ struct real_policy : real_policies< Num >
 };
 
 // Formatted double generator
-typedef real_generator< double, real_policy< double > > real_type;
+using RealType = real_generator< double, RealPolicy< double > >;
 
 // The core structure of the generator
 template< typename OutputIterator >
-struct generator_grammar : grammar< OutputIterator, mesh_t( ) >
+struct GeneratorGrammar : grammar< OutputIterator, Mesh( ) >
 {
-  generator_grammar( bool generate_matusage ) : generator_grammar::base_type( mesh )
+  GeneratorGrammar( bool generate_matusage ) : GeneratorGrammar::base_type( mesh )
   {
 
     mesh = "* Created with comsol2aero version "
            << lit( VERSION ) << eol << '*' << eol << nodes << eol << '*' << eol << elements << eol
-           << '*' << eol << attributes_labels << eol << '*' << eol << attributes << eol << '*'
+           << '*' << eol << attribute_labels << eol << '*' << eol << attributes << eol << '*'
            << eol << ( ( eps( generate_matusage == true ) << matusage << eol << '*' << eol ) | eps )
            << topologies << eol << '*' << eol << selection_topologies << eol;
 
@@ -113,7 +113,7 @@ struct generator_grammar : grammar< OutputIterator, mesh_t( ) >
 
     element = uint_ << ' ' << uint_ % ' ';
 
-    attributes_labels
+    attribute_labels
       %= ( "* Attributes/matusage labels"
            << eol << eps[ _a = 1 ]
            << ( "* " << lit( _a ) << eps[ ++_a ] << ' ' << boost::spirit::karma::string ) % eol )
@@ -140,66 +140,66 @@ struct generator_grammar : grammar< OutputIterator, mesh_t( ) >
                                           << '*'
                             | eps;
 
-    selection_topology %= "* Selection name: " << boost::spirit::karma::string << eol << eps[ _a = 1 ]
+    selection_topology
+      %= "* Selection name: " << boost::spirit::karma::string << eol << eps[ _a = 1 ]
                               << ( lit( _a ) << eps[ ++_a ] << ' ' << element ) % eol;
   }
 
-  rule< OutputIterator, mesh_t( ) >                                       mesh;
-  rule< OutputIterator, locals< size_t >, mesh_t::nodes_t( ) >            nodes;
-  rule< OutputIterator, locals< size_t >, mesh_t::elements_t( ) >         elements;
-  rule< OutputIterator, mesh_t::element_t( ) >                            element;
-  rule< OutputIterator, locals< size_t >, mesh_t::attribute_labels_t( ) > attributes_labels;
-  rule< OutputIterator, locals< size_t >, mesh_t::attributes_t( ) >       attributes;
-  rule< OutputIterator, locals< size_t >, mesh_t::attributes_t( ) >       matusage;
-  rule< OutputIterator, locals< size_t >, mesh_t::surface_topologies_t( ) > topologies;
-  rule< OutputIterator, mesh_t::topology_id_t( ) >                        topology_id;
+  rule< OutputIterator, Mesh( ) >                                      mesh;
+  rule< OutputIterator, locals< size_t >, Mesh::Nodes( ) >             nodes;
+  rule< OutputIterator, locals< size_t >, Mesh::Elements( ) >          elements;
+  rule< OutputIterator, Mesh::Element( ) >                             element;
+  rule< OutputIterator, locals< size_t >, Mesh::AttributeLabels( ) >   attribute_labels;
+  rule< OutputIterator, locals< size_t >, Mesh::Attributes( ) >        attributes;
+  rule< OutputIterator, locals< size_t >, Mesh::Attributes( ) >        matusage;
+  rule< OutputIterator, locals< size_t >, Mesh::SurfaceTopologies( ) > topologies;
+  rule< OutputIterator, Mesh::TopologyId( ) >                          topology_id;
 
-  rule< OutputIterator, locals< size_t >, mesh_t::selection_surface_topologies_t( ) >
-    selection_topologies;
-  rule< OutputIterator, locals< size_t >, mesh_t::selection_surface_topology_t( ) >
-    selection_topology;
+  rule< OutputIterator, locals< size_t >, Mesh::SelectionSurfaceTopologies( ) >
+                                                                              selection_topologies;
+  rule< OutputIterator, locals< size_t >, Mesh::SelectionSurfaceTopology( ) > selection_topology;
 
-  real_type const real_;
+  RealType const real_;
 };
 
-class generator
+class Generator
 {
 
 public:
-  generator( bool verb, bool matusage, const mesh_t& aMesh );
+  Generator( bool verb, bool matusage, const Mesh& aero_mesh );
 
-  void generate( string fileName ) const;
+  void generate( string file_name ) const;
 
   template< class S >
   void generate( S& stream ) const
   {
     namespace karma = boost::spirit::karma;
 
-    string outputString;
+    string output_string;
 
-    typedef back_insert_iterator< string > sink_t;
+    typedef back_insert_iterator< string > Sink;
 
-    sink_t sink( outputString );
+    Sink sink( output_string );
 
-    generator_grammar< sink_t > g( matusage_ );
+    GeneratorGrammar< Sink > g( matusage_ );
 
     if ( !karma::generate( sink, g, mesh ) )
     {
       throw runtime_error( "Aero mesh generation failed." );
     }
 
-    stream << outputString;
+    stream << output_string;
 
     stdclog.print( "Aero mesh generation completed." );
   }
 
 private:
-  const mesh_t& mesh;
-  bool          matusage_;
+  const Mesh& mesh;
+  bool        matusage_;
 
-  char_streamer< ostream > stdclog;
+  CharStreamer< ostream > stdclog;
 #ifdef NDEBUG
-  none_char_streamer< ostream > debugstdout;
+  NoneCharStreamer< ostream > debugstdout;
 #else
   char_streamer< ostream > debugstdout;
 #endif

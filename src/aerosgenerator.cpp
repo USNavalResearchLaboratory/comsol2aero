@@ -7,23 +7,22 @@
 namespace aeros
 {
 
-generator::generator( bool verb, bool matusage, const mesh_t& aMesh ) :
-  mesh( aMesh ), stdclog( clog, verb ), debugstdout( cerr, true ), matusage_( matusage )
+Generator::Generator( bool verb, bool matusage, const Mesh& aero_mesh ) :
+  mesh( aero_mesh ), stdclog( clog, verb ), debugstdout( cerr, true ), matusage_( matusage )
 {
 }
 
-void generator::generate( string fileName ) const
+void Generator::generate( string file_name ) const
 {
-
-  stdclog.print( "\nOpening for aero mesh output: ", fileName, "\n" );
+  stdclog.print( "\nOpening for aero mesh output: ", file_name, "\n" );
 
   ofstream file;
-  file.open( fileName );
+  file.open( file_name );
 
   if ( !file )
   {
     stringstream ss;
-    ss << "Could not open file " << fileName << " for writing.";
+    ss << "Could not open file " << file_name << " for writing.";
 
     throw runtime_error( ss.str( ) );
   }

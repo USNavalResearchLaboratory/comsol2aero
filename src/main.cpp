@@ -1,4 +1,4 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
+// comsol2aero: a comsol mesh to frg aero mesh Converter
 
 // AUTHORIZATION TO USE AND DISTRIBUTE. By using or distributing the comsol2aero software
 // ("THE SOFTWARE"), you agree to the following terms governing the use and redistribution of
@@ -54,57 +54,57 @@ int main( int ac, char* av[] )
   try
   {
 
-    auto options = parseCommandLineOptions( ac, av );
+    auto options = parse_command_line_options( ac, av );
 
     if ( options.help || options.version_request )
     {
       return 0;
     }
 
-    comsol::parser parser( options.verbose );
+    comsol::Parser Parser( options.verbose );
 
-    if ( options.inputFileName == "" )
+    if ( options.input_file_name == "" )
     {
-      parser.parse( std::cin );
+      Parser.parse( std::cin );
     }
     else
     {
-      parser.parse( options.inputFileName );
+      Parser.parse( options.input_file_name );
     }
 
-    aero::mesh_t aeroMesh;
-    converter    conv( options.verbose,
+    aero::Mesh aeroMesh;
+    Converter    conv( options.verbose,
                     options.use_selections,
-                    options.elementMapping,
+                    options.element_mapping,
                     options.surface_name_prefixes,
                     options.accepted_selections );
 
-    conv.convert( parser.getModel( ), aeroMesh );
+    conv.convert( Parser.getModel( ), aeroMesh );
 
     if ( options.aerof == false )
     {
-      aeros::generator generator( options.verbose, options.matusage, aeroMesh );
+      aeros::Generator generator( options.verbose, options.matusage, aeroMesh );
 
-      if ( options.outputFileName == "" )
+      if ( options.output_file_name == "" )
       {
         generator.generate( std::cout );
       }
       else
       {
-        generator.generate( options.outputFileName );
+        generator.generate( options.output_file_name );
       }
     }
     else
     {
-      aerof::generator generator( options.verbose, aeroMesh );
+      aerof::Generator generator( options.verbose, aeroMesh );
 
-      if ( options.outputFileName == "" )
+      if ( options.output_file_name == "" )
       {
         generator.generate( std::cout );
       }
       else
       {
-        generator.generate( options.outputFileName );
+        generator.generate( options.output_file_name );
       }
     }
   }

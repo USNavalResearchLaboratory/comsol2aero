@@ -1,4 +1,4 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
+// comsol2aero: a comsol mesh to frg aero mesh Converter
 
 // AUTHORIZATION TO USE AND DISTRIBUTE. By using or distributing the comsol2aero software
 // ("THE SOFTWARE"), you agree to the following terms governing the use and redistribution of
@@ -52,39 +52,39 @@
 namespace aero
 {
 
-struct mesh_t
+struct Mesh
 {
-  using node_t                         = std::vector< double >;
-  using nodes_t                        = std::vector< node_t >;
-  using connectivity_t                 = std::vector< std::size_t >;
-  using element_t                      = std::pair< std::size_t, connectivity_t >;
-  using elements_t                     = std::vector< element_t >;
-  using attribute_labels_t             = std::vector< std::string >;
-  using attributes_t                   = std::vector< std::size_t >;
-  using topology_id_t                  = std::pair< std::string, std::size_t >;
-  using surface_topologies_t           = std::map< topology_id_t, elements_t >;
-  using selection_surface_topology_t   = std::pair< std::string, elements_t >;
-  using selection_surface_topologies_t = std::vector< selection_surface_topology_t >;
+  using Node                       = std::vector< double >;
+  using Nodes                      = std::vector< Node >;
+  using Connectivity               = std::vector< std::size_t >;
+  using Element                    = std::pair< std::size_t, Connectivity >;
+  using Elements                   = std::vector< Element >;
+  using AttributeLabels            = std::vector< std::string >;
+  using Attributes                 = std::vector< std::size_t >;
+  using TopologyId                 = std::pair< std::string, std::size_t >;
+  using SurfaceTopologies          = std::map< TopologyId, Elements >;
+  using SelectionSurfaceTopology   = std::pair< std::string, Elements >;
+  using SelectionSurfaceTopologies = std::vector< SelectionSurfaceTopology >;
 
-  nodes_t                        nodes;
-  elements_t                     elements;
-  attribute_labels_t             attribute_labels;
-  attributes_t                   attributes;
-  surface_topologies_t           surface_topologies;
-  selection_surface_topologies_t selection_surface_topologies;
+  Nodes                      nodes;
+  Elements                   elements;
+  AttributeLabels            attribute_labels;
+  Attributes                 attributes;
+  SurfaceTopologies          surface_topologies;
+  SelectionSurfaceTopologies selection_surface_topologies;
 };
 
 } // namespace aero
 
 // clang-format off
-BOOST_FUSION_ADAPT_STRUCT( aero::mesh_t,
-  ( aero::mesh_t::nodes_t,                        nodes )
-  ( aero::mesh_t::elements_t,                     elements )
-  ( aero::mesh_t::attribute_labels_t,             attribute_labels )
-  ( aero::mesh_t::attributes_t,                   attributes )
-  ( aero::mesh_t::attributes_t,                   attributes ) // Repeating in case the user wants to output matusage
-  ( aero::mesh_t::surface_topologies_t,           surface_topologies )
-  ( aero::mesh_t::selection_surface_topologies_t, selection_surface_topologies )
+BOOST_FUSION_ADAPT_STRUCT( aero::Mesh,
+  ( aero::Mesh::Nodes,                      nodes )
+  ( aero::Mesh::Elements,                   elements )
+  ( aero::Mesh::AttributeLabels,            attribute_labels )
+  ( aero::Mesh::Attributes,                 attributes )
+  ( aero::Mesh::Attributes,                 attributes ) // Repeating in case the user wants to output matusage
+  ( aero::Mesh::SurfaceTopologies,          surface_topologies )
+  ( aero::Mesh::SelectionSurfaceTopologies, selection_surface_topologies )
 )
 // clang-format on
 

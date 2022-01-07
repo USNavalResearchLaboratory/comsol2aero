@@ -1,4 +1,4 @@
-// comsol2aero: a comsol mesh to frg aero mesh converter
+// comsol2aero: a comsol mesh to frg aero mesh Converter
 
 // AUTHORIZATION TO USE AND DISTRIBUTE. By using or distributing the comsol2aero software
 // ("THE SOFTWARE"), you agree to the following terms governing the use and redistribution of
@@ -38,4 +38,4 @@
 // parties. These are available on an "as is" basis and subject to their individual license agreements.
 // Additional information can be found in the provided "licenses" folder.
 
-bool is_stdin_a_tty( );
+bool IsStdinAtty( );
